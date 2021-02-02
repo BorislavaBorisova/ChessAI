@@ -1,2 +1,6 @@
 .idea/
 ChessAI.iml
+.classpath
+.project
+bin/
+.settings/
