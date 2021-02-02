@@ -15,4 +15,9 @@ public class Pawn extends Piece{
     public ArrayList<Position> generatePossibleMoves(Position currentBoard) {
         return null;
     }
+
+    @Override
+    public boolean canReach(int x, int y, Position currentPosition) {
+        return false;
+    }
 }
