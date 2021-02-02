@@ -1,4 +1,3 @@
-
 public class Position {
     private Piece[][] board;
     private boolean turn;
@@ -66,6 +65,7 @@ public class Position {
         if (!Helpers.onBoard(newX, newY))
             return null;
         Position newPosition = this.clone();
+        if(newPosition.board[oldX][oldY].color == turn) return null; //checks if i am trying to take my own piece
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
         newPosition.board[newX][newY].setCoordinates(newX, newY);
         newPosition.board[oldX][oldY] = null;
@@ -75,7 +75,22 @@ public class Position {
         return newPosition.valid() ? newPosition : null;
     }
 
-    public boolean valid() {// TODO
+    public boolean valid(){
+        int kingX = 0, kingY = 0;
+        for(int i = 0; i < board[0].length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if(board[i][j] != null && board[i][j].color == turn && board[i][j] instanceof King){
+                    kingX = board[i][j].x;
+                    kingY = board[i][j].y;
+                }
+            }
+        }
+
+        for(int i = 0; i < board[0].length; i++){
+            for(int j = 0; j < board.length; j++) {
+                if(board[i][j] != null && board[i][j].color != turn && board[i][j].canReach(kingX, kingY, this)) return false;
+            }
+        }
         return true;
     }
 }

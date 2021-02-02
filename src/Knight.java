@@ -25,4 +25,12 @@ public class Knight extends Piece{
         ArrayList<Position> filteredPositions = new ArrayList<>(positions.stream().filter(position -> position.valid()).collect(Collectors.toList()));
         return filteredPositions;
     }
+
+    @Override
+    public boolean canReach(int goalX, int goalY, Position currentPosition) {
+        return (x + 2 == goalX && y + 1 == goalY) || (x + 2 == goalX && y - 1 == goalY) ||
+                (x - 2 == goalX && y + 1 == goalY) || (x - 2 == goalX && y - 1 == goalY) ||
+                (x + 1 == goalX && y + 2 == goalY) || (x - 1 == goalX && y + 2 == goalY) ||
+                (x + 1 == goalX && y - 2 == goalY) || (x - 1 == goalX && y - 2 == goalY);
+    }
 }

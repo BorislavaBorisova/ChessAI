@@ -119,4 +119,9 @@ public class Pawn extends Piece {
         }
         return false;
     }
+
+    @Override
+    public boolean canReach(int x, int y, Position currentPosition) {
+        return false;
+    }
 }
