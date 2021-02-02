@@ -1,3 +1,4 @@
+
 public class Position {
     private Piece[][] board;
     private boolean turn;
@@ -21,11 +22,12 @@ public class Position {
     }
 
     public Position move(int oldX, int oldY, int newX, int newY){
+        if(!Helpers.onBoard(newX, newY)) return null;
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
         newPosition.board[oldX][oldY] = null;
         newPosition.turn = !turn;
-        return newPosition;
+        return newPosition.valid() ? newPosition : null;
     }
 
     public boolean valid(){//TODO

@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
 public abstract class Piece {
-    private int x;
-    private int y;
-    boolean color;
+    protected int x;
+    protected int y;
+    protected boolean color;
 
     public Piece(int x, int y, boolean color){
         this.x = x;
