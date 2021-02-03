@@ -38,6 +38,7 @@ public class Position {
         if (!Helpers.onBoard(newX, newY))
             return null;
         Position newPosition = this.clone();
+        if(newPosition.board[newX][newY].color == turn) return null; //checks if i am trying to take my own piece
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
         newPosition.board[newX][newY].setCoordinates(newX, newY);
         if(newPosition.board[newX][newY] instanceof Pawn) {            
