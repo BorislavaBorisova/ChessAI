@@ -83,6 +83,25 @@ public class Position {
         newPosition.move = move + 1;
         return newPosition.valid() ? newPosition : null;
     }
+    
+    public Position castle(int kingX, int kingY, int rookX, int rookY) {
+        Position newPosition = this.clone();
+        if(kingX > rookX) {
+            newPosition.board[kingX - 2][kingY] = newPosition.board[kingX][kingY];
+            newPosition.board[kingX - 1][kingY] = newPosition.board[rookX][rookY];
+            newPosition.board[kingX][kingY] = null;
+            newPosition.board[rookX][rookY] = null;
+        } else {
+            newPosition.board[kingX + 2][kingY] = newPosition.board[kingX][kingY];
+            newPosition.board[kingX + 1][kingY] = newPosition.board[rookX][rookY];
+            newPosition.board[kingX][kingY] = null;
+            newPosition.board[rookX][rookY] = null;
+        }
+        newPosition.turn = !turn;
+        newPosition.move = move + 1;
+        
+        return newPosition;
+    }
 
     public boolean valid(){
         int kingX = turn ? whiteKingX : blackKingX,  kingY = turn ? whiteKingY : blackKingY;

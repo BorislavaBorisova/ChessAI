@@ -76,7 +76,7 @@ public class King extends Piece {
                 if (rightRook != null && !rightRook.hasMoved() && currentBoard.getPiece(5, 0) == null
                         && currentBoard.getPiece(6, 0) == null && !currentBoard.canBeAttacked(5, 0)
                         && !currentBoard.canBeAttacked(6, 0)) {
-                    positions.add(currentBoard).castle(x, y, 7, 0);
+                    positions.add(currentBoard.castle(x, y, 7, 0));
                 }
             } else {
                 Piece leftCorner = currentBoard.getPiece(0, 7);
@@ -97,7 +97,7 @@ public class King extends Piece {
                 if (rightRook != null && !rightRook.hasMoved() && currentBoard.getPiece(5, 7) == null
                         && currentBoard.getPiece(6, 7) == null && !currentBoard.canBeAttacked(5, 7)
                         && !currentBoard.canBeAttacked(6, 7)) {
-                    positions.add(currentBoard).castle(x, y, 7, 7);
+                    positions.add(currentBoard.castle(x, y, 7, 7));
                 }
             }
         }
