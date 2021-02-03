@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Position {
     private Piece[][] board;
     private boolean turn;
@@ -6,6 +8,7 @@ public class Position {
     private int whiteKingY = 0;
     private int blackKingX = 4;
     private int blackKingY = 7;
+    private Position nextPosition;
 
     public Position(boolean turn, int move) {
         this.board = new Piece[8][8];
@@ -115,25 +118,127 @@ public class Position {
     }
 
     public void print(){
-        for(int i = 0; i < board[0].length; i++) {
-            for(int j = board.length - 1; j >= 0; j--) {
-                if(board[i][j] == null){
-                    System.out.print("   ");
-                } else if(board[i][j] instanceof Pawn){
-                    System.out.print("pw ");
-                }else if(board[i][j] instanceof Bishop){
-                    System.out.print("bs ");
-                }else if(board[i][j] instanceof Knight){
-                    System.out.print("kn ");
-                }else if(board[i][j] instanceof Rook){
-                    System.out.print("ro ");
-                }else if(board[i][j] instanceof Queen){
-                    System.out.print("qu ");
-                }else if(board[i][j] instanceof King){
-                    System.out.print("kg ");
-                }
+        for(int j = board.length - 1; j >= 0; j--) {
+            for(int i = 0; i < board[0].length; i++) {
+                if(board[i][j] == null) System.out.print("   ");
+                else if(board[i][j] instanceof Pawn) System.out.print("pw ");
+                else if(board[i][j] instanceof Bishop) System.out.print("bs ");
+                else if(board[i][j] instanceof Knight) System.out.print("kn ");
+                else if(board[i][j] instanceof Rook) System.out.print("ro ");
+                else if(board[i][j] instanceof Queen) System.out.print("qu ");
+                else System.out.print("kg ");
             }
             System.out.println();
         }
+    }
+
+    public double eval(int depth){
+        double sum = 0.0;
+        for(int i = 0; i < board[0].length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if(board[i][j].color == turn){
+                    if(board[i][j] instanceof Pawn) sum += 1.0;
+                    else if(board[i][j] instanceof Bishop) sum += 3.0;
+                    else if(board[i][j] instanceof Knight) sum += 3.0;
+                    else if(board[i][j] instanceof Rook) sum += 5.0;
+                    else if(board[i][j] instanceof Queen) sum += 9.0;
+                    else if(board[i][j] instanceof King)sum += 105.0;
+                }
+            }
+        }
+        return sum;
+    }
+
+    private ArrayList<Position> generateSuccessors(){
+        ArrayList<Position> successors = new ArrayList<>();
+        for(int i = 0; i < board[0].length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if(board[i][j].color == true){
+                    successors.addAll(board[i][j].generatePossibleMoves(this));
+                }
+            }
+        }
+        return successors;
+    }
+
+//    private double maxValue(Position state, int depth, double alpha, double beta){
+//        if(isTerminalState(state)){
+//            return state.eval(depth);
+//        }
+//        double v = Double.MIN_VALUE;
+//        ArrayList<Position> successors = generateSuccessors();
+//        double minValue;
+//        Position nextStateLocal = null;
+//        for(Position successor : successors){
+//            minValue = minValue(successor, depth + 1, alpha, beta);
+//            if(minValue > v){
+//                nextStateLocal = successor;
+//            }
+//            v = Math.max(v, minValue);
+//            if(v >= beta)
+//                return v;
+//            alpha = Math.max(alpha, v);
+//        }
+//        nextPosition = nextStateLocal;
+//        return v;
+//    }
+
+    private double maxValue(Position position, int depth, double alpha, double beta) {
+        if (this.isTerminal(position)) {
+            return position.eval(depth);
+        }
+
+        double value = Double.MIN_VALUE;
+        Position nextPosition = null;
+        double currentValue;
+
+        ArrayList<Position> successors = position.generateSuccessors();
+        for (Position successor : successors) {
+            currentValue = minValue(successor, depth + 1, alpha, beta);
+            if (currentValue > value) {
+                nextPosition = successor;
+                value = currentValue;
+            }
+            if (value >= beta)
+                return value;
+            if (value > alpha) {
+                alpha = value;
+            }
+        }
+
+        this.nextPosition = nextPosition;
+        return value;
+    }
+
+    private double minValue(Position position, int depth, double alpha, double beta) {
+        if (this.isTerminal(position)) {
+            return position.eval(depth);
+        }
+
+        double value = Double.MAX_VALUE;
+        Position nextPosition = null;
+        double currentValue;
+
+        ArrayList<Position> successors = position.generateSuccessors();
+        for (Position successor : successors) {
+            currentValue = maxValue(successor, depth + 1, alpha, beta);
+            if (currentValue < value) {
+                nextPosition = successor;
+                value = currentValue;
+            }
+            if (value <= alpha)
+                return value;
+            if (value < beta) {
+                beta = value;
+            }
+        }
+
+        this.nextPosition = nextPosition;
+        return value;
+    }
+
+    public Position minimaxDecision(){
+        maxValue(this, 0, Double.MIN_VALUE, Double.MAX_VALUE);
+        return nextPosition;
     }
 }
