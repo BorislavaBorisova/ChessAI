@@ -94,4 +94,38 @@ public class Position {
         }
         return true;
     }
+
+    public boolean canBeAttacked(int x, int y){
+        for(int i = 0; i < board[0].length; i++){
+            for(int j = 0; j < board.length; j++) {
+                if(board[i][j].color == !turn && board[i][j].canReach(x, y, this)) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasValidMoves(){
+        for(int i = 0; i < board[0].length; i++){
+            for(int j = 0; j < board.length; j++) {
+                if(board[i][j].color == turn && !board[i][j].generatePossibleMoves(this).isEmpty()) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean check(){
+        boolean flag = false;
+        int i = 0, j = 0;
+        for( ; i < board[0].length; i++) {
+            for ( ; j < board.length; j++) {
+                if(board[i][j].color == turn && board[i][j] instanceof King){
+                    flag = true;
+                    break;
+                }
+            }
+            if(flag) break;
+        }
+
+        return canBeAttacked(i, j);
+    }
 }
