@@ -48,8 +48,11 @@ public class Position {
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
         newPosition.board[newX][newY].setCoordinates(newX, newY);
-        if(newPosition.board[newX][newY] instanceof Pawn) {            
-            ((Pawn)newPosition.board[newX][newY]).setFirstMove(move);
+        if(newPosition.board[newX][newY] instanceof Pawn) {
+            Pawn pawn = (Pawn)newPosition.board[newX][newY];
+            if(pawn.getFirstMove() == -1) {
+                pawn.setFirstMove(move);               
+            }
         }
         newPosition.board[oldX][oldY] = null;
         newPosition.turn = !turn;
@@ -82,6 +85,25 @@ public class Position {
         newPosition.turn = !turn;
         newPosition.move = move + 1;
         return newPosition.valid() ? newPosition : null;
+    }
+    
+    public Position castle(int kingX, int kingY, int rookX, int rookY) {
+        Position newPosition = this.clone();
+        if(kingX > rookX) {
+            newPosition.board[kingX - 2][kingY] = newPosition.board[kingX][kingY];
+            newPosition.board[kingX - 1][kingY] = newPosition.board[rookX][rookY];
+            newPosition.board[kingX][kingY] = null;
+            newPosition.board[rookX][rookY] = null;
+        } else {
+            newPosition.board[kingX + 2][kingY] = newPosition.board[kingX][kingY];
+            newPosition.board[kingX + 1][kingY] = newPosition.board[rookX][rookY];
+            newPosition.board[kingX][kingY] = null;
+            newPosition.board[rookX][rookY] = null;
+        }
+        newPosition.turn = !turn;
+        newPosition.move = move + 1;
+        
+        return newPosition;
     }
 
     public boolean valid(){
