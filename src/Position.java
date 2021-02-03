@@ -2,6 +2,10 @@ public class Position {
     private Piece[][] board;
     private boolean turn;
     private int move = 0;
+    private int whiteKingX = 4;
+    private int whiteKingY = 0;
+    private int blackKingX = 4;
+    private int blackKingY = 7;
 
     public Position(boolean turn, int move) {
         this.board = new Piece[8][8];
@@ -35,7 +39,8 @@ public class Position {
     }
 
     public Position move(int oldX, int oldY, int newX, int newY) {
-        if (!Helpers.onBoard(newX, newY))
+        //checks if on board and if i am trying to take my own piece
+        if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
             return null;
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
@@ -53,7 +58,8 @@ public class Position {
     }
 
     public Position promote(int oldX, int oldY, int newX, int newY, Piece piece) {
-        if (!Helpers.onBoard(newX, newY))
+        //checks if on board and if i am trying to take my own piece
+        if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
             return null;
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = piece;
@@ -65,10 +71,10 @@ public class Position {
     }
     
     public Position enPassant(int oldX, int oldY, int newX, int newY) {
-        if (!Helpers.onBoard(newX, newY))
+        //checks if on board and if i am trying to take my own piece
+        if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
             return null;
         Position newPosition = this.clone();
-        if(newPosition.board[oldX][oldY].color == turn) return null; //checks if i am trying to take my own piece
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
         newPosition.board[newX][newY].setCoordinates(newX, newY);
         newPosition.board[oldX][oldY] = null;
@@ -79,21 +85,58 @@ public class Position {
     }
 
     public boolean valid(){
-        int kingX = 0, kingY = 0;
-        for(int i = 0; i < board[0].length; i++) {
-            for (int j = 0; j < board.length; j++) {
-                if(board[i][j] != null && board[i][j].color == turn && board[i][j] instanceof King){
-                    kingX = board[i][j].x;
-                    kingY = board[i][j].y;
-                }
-            }
-        }
-
-        for(int i = 0; i < board[0].length; i++){
-            for(int j = 0; j < board.length; j++) {
-                if(board[i][j] != null && board[i][j].color != turn && board[i][j].canReach(kingX, kingY, this)) return false;
+        int kingX = turn ? whiteKingX : blackKingX,  kingY = turn ? whiteKingY : blackKingY;
+        for(int k = 0; k < board[0].length; k++){
+            for(int l = 0; l < board.length; l++) {
+                if(board[k][l] != null && board[k][l].color != turn && board[k][l].canReach(kingX, kingY, this)) return false;
             }
         }
         return true;
+    }
+
+    public boolean canBeAttacked(int x, int y){
+        for(int i = 0; i < board[0].length; i++){
+            for(int j = 0; j < board.length; j++) {
+                if(board[i][j].color == !turn && board[i][j].canReach(x, y, this)) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasValidMoves(){
+        for(int i = 0; i < board[0].length; i++){
+            for(int j = 0; j < board.length; j++) {
+                if(board[i][j].color == turn && !board[i][j].generatePossibleMoves(this).isEmpty()) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean check(){
+        int kingX = turn ? whiteKingX : blackKingX,  kingY = turn ? whiteKingY : blackKingY;
+        return canBeAttacked(kingX, kingY);
+    }
+
+    public void print(){
+        for(int i = 0; i < board[0].length; i++) {
+            for(int j = board.length - 1; j >= 0; j--) {
+                if(board[i][j] == null){
+                    System.out.print("   ");
+                } else if(board[i][j] instanceof Pawn){
+                    System.out.print("pw ");
+                }else if(board[i][j] instanceof Bishop){
+                    System.out.print("bs ");
+                }else if(board[i][j] instanceof Knight){
+                    System.out.print("kn ");
+                }else if(board[i][j] instanceof Rook){
+                    System.out.print("ro ");
+                }else if(board[i][j] instanceof Queen){
+                    System.out.print("qu ");
+                }else if(board[i][j] instanceof King){
+                    System.out.print("kg ");
+                }
+            }
+            System.out.println();
+        }
     }
 }
