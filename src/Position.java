@@ -40,8 +40,11 @@ public class Position {
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
         newPosition.board[newX][newY].setCoordinates(newX, newY);
-        if(newPosition.board[newX][newY] instanceof Pawn) {            
-            ((Pawn)newPosition.board[newX][newY]).setFirstMove(move);
+        if(newPosition.board[newX][newY] instanceof Pawn) {
+            Pawn pawn = (Pawn)newPosition.board[newX][newY];
+            if(pawn.getFirstMove() == -1) {
+                pawn.setFirstMove(move);               
+            }
         }
         newPosition.board[oldX][oldY] = null;
         newPosition.turn = !turn;
