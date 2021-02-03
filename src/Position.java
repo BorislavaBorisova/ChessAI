@@ -27,7 +27,7 @@ public class Position {
     public Position move(int oldX, int oldY, int newX, int newY){
         if(!Helpers.onBoard(newX, newY)) return null;
         Position newPosition = this.clone();
-        if(newPosition.board[oldX][oldY].color == turn) return null; //checks if i am trying to take my own piece
+        if(newPosition.board[newX][newY].color == turn) return null; //checks if i am trying to take my own piece
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
         newPosition.board[oldX][oldY] = null;
         newPosition.turn = !turn;
