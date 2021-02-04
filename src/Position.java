@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
+
 public class Position {
     private Piece[][] board;
     private boolean turn;
@@ -9,6 +11,10 @@ public class Position {
     private int blackKingX = 4;
     private int blackKingY = 7;
     private Position nextPosition;
+    private boolean isDraw = false;
+    private boolean isMate = false;
+
+    public static final int MAX_AI_DEPTH = 20;
 
     public Position(boolean turn, int move) {
         this.board = new Piece[8][8];
@@ -26,7 +32,7 @@ public class Position {
         }
         return null;
     }
-    
+
     public int getMove() {
         return move;
     }
@@ -41,27 +47,48 @@ public class Position {
         return newPosition;
     }
 
+    private void updateStatus(int x, int y) {
+        if (board[x][y] instanceof Pawn) {
+            Pawn pawn = (Pawn) board[x][y];
+            if (pawn.getFirstMove() == -1) {
+                pawn.setFirstMove(move);
+            }
+        } else if (board[x][y] instanceof Rook) {
+            Rook rook = (Rook) board[x][y];
+            rook.move();
+        } else if (board[x][y] instanceof King) {
+            King king = (King) board[x][y];
+            king.move();
+            setKingPosition(x, y);
+        }
+    }
+
+    private void setKingPosition(int x, int y) {
+        if (turn) {
+            whiteKingX = x;
+            whiteKingY = y;
+        } else {
+            blackKingX = x;
+            blackKingY = y;
+        }
+    }
+
     public Position move(int oldX, int oldY, int newX, int newY) {
-        //checks if on board and if i am trying to take my own piece
+        // checks if on board and if i am trying to take my own piece
         if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
             return null;
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
         newPosition.board[newX][newY].setCoordinates(newX, newY);
-        if(newPosition.board[newX][newY] instanceof Pawn) {
-            Pawn pawn = (Pawn)newPosition.board[newX][newY];
-            if(pawn.getFirstMove() == -1) {
-                pawn.setFirstMove(move);               
-            }
-        }
         newPosition.board[oldX][oldY] = null;
         newPosition.turn = !turn;
         newPosition.move = move + 1;
+        newPosition.updateStatus(newX, newY);
         return newPosition.valid() ? newPosition : null;
     }
 
     public Position promote(int oldX, int oldY, int newX, int newY, Piece piece) {
-        //checks if on board and if i am trying to take my own piece
+        // checks if on board and if i am trying to take my own piece
         if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
             return null;
         Position newPosition = this.clone();
@@ -72,9 +99,9 @@ public class Position {
         newPosition.move = move + 1;
         return newPosition.valid() ? newPosition : null;
     }
-    
+
     public Position enPassant(int oldX, int oldY, int newX, int newY) {
-        //checks if on board and if i am trying to take my own piece
+        // checks if on board and if i am trying to take my own piece
         if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
             return null;
         Position newPosition = this.clone();
@@ -86,10 +113,10 @@ public class Position {
         newPosition.move = move + 1;
         return newPosition.valid() ? newPosition : null;
     }
-    
+
     public Position castle(int kingX, int kingY, int rookX, int rookY) {
         Position newPosition = this.clone();
-        if(kingX > rookX) {
+        if (kingX > rookX) {
             newPosition.board[kingX - 2][kingY] = newPosition.board[kingX][kingY];
             newPosition.board[kingX - 1][kingY] = newPosition.board[rookX][rookY];
             newPosition.board[kingX][kingY] = null;
@@ -102,80 +129,104 @@ public class Position {
         }
         newPosition.turn = !turn;
         newPosition.move = move + 1;
-        
+        newPosition.updateStatus(kingX, kingY);
+        newPosition.updateStatus(rookX, rookY);
+
         return newPosition;
     }
 
-    public boolean valid(){
-        int kingX = turn ? whiteKingX : blackKingX,  kingY = turn ? whiteKingY : blackKingY;
-        for(int k = 0; k < board[0].length; k++){
-            for(int l = 0; l < board.length; l++) {
-                if(board[k][l] != null && board[k][l].color != turn && board[k][l].canReach(kingX, kingY, this)) return false;
+    public boolean valid() {
+        int kingX = turn ? whiteKingX : blackKingX, kingY = turn ? whiteKingY : blackKingY;
+        for (int k = 0; k < board[0].length; k++) {
+            for (int l = 0; l < board.length; l++) {
+                if (board[k][l] != null && board[k][l].color != turn && board[k][l].canReach(kingX, kingY, this))
+                    return false;
             }
         }
         return true;
     }
 
-    public boolean canBeAttacked(int x, int y){
-        for(int i = 0; i < board[0].length; i++){
-            for(int j = 0; j < board.length; j++) {
-                if(board[i][j].color == !turn && board[i][j].canReach(x, y, this)) return true;
+    public boolean canBeAttacked(int x, int y) {
+        for (int i = 0; i < board[0].length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if (board[i][j].color == !turn && board[i][j].canReach(x, y, this))
+                    return true;
             }
         }
         return false;
     }
 
-    public boolean hasValidMoves(){
-        for(int i = 0; i < board[0].length; i++){
-            for(int j = 0; j < board.length; j++) {
-                if(board[i][j].color == turn && !board[i][j].generatePossibleMoves(this).isEmpty()) return true;
+    public boolean hasValidMoves() {
+        for (int i = 0; i < board[0].length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if (board[i][j].color == turn && !board[i][j].generatePossibleMoves(this).isEmpty())
+                    return true;
             }
         }
         return false;
     }
 
-    public boolean check(){
-        int kingX = turn ? whiteKingX : blackKingX,  kingY = turn ? whiteKingY : blackKingY;
+    public boolean check() {
+        int kingX = turn ? whiteKingX : blackKingX, kingY = turn ? whiteKingY : blackKingY;
         return canBeAttacked(kingX, kingY);
     }
 
-    public void print(){
-        for(int j = board.length - 1; j >= 0; j--) {
-            for(int i = 0; i < board[0].length; i++) {
-                if(board[i][j] == null) System.out.print("   ");
-                else if(board[i][j] instanceof Pawn) System.out.print("pw ");
-                else if(board[i][j] instanceof Bishop) System.out.print("bs ");
-                else if(board[i][j] instanceof Knight) System.out.print("kn ");
-                else if(board[i][j] instanceof Rook) System.out.print("ro ");
-                else if(board[i][j] instanceof Queen) System.out.print("qu ");
-                else System.out.print("kg ");
+    public void print() {
+        for (int j = board.length - 1; j >= 0; j--) {
+            for (int i = 0; i < board[0].length; i++) {
+                if (board[i][j] == null)
+                    System.out.print("   ");
+                else if (board[i][j] instanceof Pawn)
+                    System.out.print("pw ");
+                else if (board[i][j] instanceof Bishop)
+                    System.out.print("bs ");
+                else if (board[i][j] instanceof Knight)
+                    System.out.print("kn ");
+                else if (board[i][j] instanceof Rook)
+                    System.out.print("ro ");
+                else if (board[i][j] instanceof Queen)
+                    System.out.print("qu ");
+                else
+                    System.out.print("kg ");
             }
             System.out.println();
         }
     }
 
-    public double eval(int depth){
+    public double eval(int depth) {
+        if (isMate) {
+            return 200.0;
+        } else if (isDraw) {
+            return 0.0;
+        }
+
         double sum = 0.0;
-        for(int i = 0; i < board[0].length; i++) {
+        for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if(board[i][j].color == turn){
-                    if(board[i][j] instanceof Pawn) sum += 1.0;
-                    else if(board[i][j] instanceof Bishop) sum += 3.0;
-                    else if(board[i][j] instanceof Knight) sum += 3.0;
-                    else if(board[i][j] instanceof Rook) sum += 5.0;
-                    else if(board[i][j] instanceof Queen) sum += 9.0;
-                    else if(board[i][j] instanceof King)sum += 105.0;
+                if (board[i][j].color == turn) {
+                    if (board[i][j] instanceof Pawn)
+                        sum += 1.0;
+                    else if (board[i][j] instanceof Bishop)
+                        sum += 3.0;
+                    else if (board[i][j] instanceof Knight)
+                        sum += 3.0;
+                    else if (board[i][j] instanceof Rook)
+                        sum += 5.0;
+                    else if (board[i][j] instanceof Queen)
+                        sum += 9.0;
+                    else if (board[i][j] instanceof King)
+                        sum += 105.0;
                 }
             }
         }
         return sum;
     }
 
-    private ArrayList<Position> generateSuccessors(){
+    private ArrayList<Position> generateSuccessors() {
         ArrayList<Position> successors = new ArrayList<>();
-        for(int i = 0; i < board[0].length; i++) {
+        for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if(board[i][j].color == true){
+                if (board[i][j].color == true) {
                     successors.addAll(board[i][j].generatePossibleMoves(this));
                 }
             }
@@ -183,30 +234,24 @@ public class Position {
         return successors;
     }
 
-//    private double maxValue(Position state, int depth, double alpha, double beta){
-//        if(isTerminalState(state)){
-//            return state.eval(depth);
-//        }
-//        double v = Double.MIN_VALUE;
-//        ArrayList<Position> successors = generateSuccessors();
-//        double minValue;
-//        Position nextStateLocal = null;
-//        for(Position successor : successors){
-//            minValue = minValue(successor, depth + 1, alpha, beta);
-//            if(minValue > v){
-//                nextStateLocal = successor;
-//            }
-//            v = Math.max(v, minValue);
-//            if(v >= beta)
-//                return v;
-//            alpha = Math.max(alpha, v);
-//        }
-//        nextPosition = nextStateLocal;
-//        return v;
-//    }
+    private boolean isTerminal(int depth) {
+        boolean hasMoves = hasValidMoves();
+        boolean isCheck = check();
+        if (!hasMoves && isCheck) {
+            isMate = true;
+            return true;
+        } else if (!hasMoves) {
+            isDraw = true;
+            return true;
+        } else if (depth > MAX_AI_DEPTH) {
+            return true;
+        }
+
+        return false;
+    }
 
     private double maxValue(Position position, int depth, double alpha, double beta) {
-        if (this.isTerminal(position)) {
+        if (position.isTerminal(depth)) {
             return position.eval(depth);
         }
 
@@ -233,7 +278,7 @@ public class Position {
     }
 
     private double minValue(Position position, int depth, double alpha, double beta) {
-        if (this.isTerminal(position)) {
+        if (position.isTerminal(depth)) {
             return position.eval(depth);
         }
 
@@ -259,7 +304,7 @@ public class Position {
         return value;
     }
 
-    public Position minimaxDecision(){
+    public Position minimaxDecision() {
         maxValue(this, 0, Double.MIN_VALUE, Double.MAX_VALUE);
         return nextPosition;
     }
