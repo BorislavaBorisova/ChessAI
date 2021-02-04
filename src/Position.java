@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-
 public class Position {
     private Piece[][] board;
     private boolean turn;
