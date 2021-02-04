@@ -282,9 +282,6 @@ public class Position {
         }
 
         this.nextPosition = nextPosition;
-//        System.out.println("**");
-//        nextPosition.print();
-//        System.out.println("**");
         return value;
     }
 
@@ -318,7 +315,6 @@ public class Position {
 
     public Position minimaxDecision() {
         maxValue(this, 0, Double.MIN_VALUE, Double.MAX_VALUE);
-        System.out.println("hui");
         return nextPosition;
     }
 }
