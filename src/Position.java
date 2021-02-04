@@ -14,7 +14,7 @@ public class Position {
     private boolean isDraw = false;
     private boolean isMate = false;
 
-    public static final int MAX_AI_DEPTH = 20;
+    public static final int MAX_AI_DEPTH = 2;
 
     public Position(boolean turn, int move) {
         this.board = new Piece[8][8];
@@ -41,7 +41,7 @@ public class Position {
         Position newPosition = new Position(turn, move);
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                newPosition.placePiece(board[i][j].clone());
+                if(board[i][j] != null) newPosition.placePiece(board[i][j].clone());
             }
         }
         return newPosition;
@@ -75,7 +75,7 @@ public class Position {
 
     public Position move(int oldX, int oldY, int newX, int newY) {
         // checks if on board and if i am trying to take my own piece
-        if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
+        if (!Helpers.onBoard(newX, newY) || (board[newX][newY] != null && board[newX][newY].color == turn))
             return null;
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
@@ -89,7 +89,7 @@ public class Position {
 
     public Position promote(int oldX, int oldY, int newX, int newY, Piece piece) {
         // checks if on board and if i am trying to take my own piece
-        if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
+        if (!Helpers.onBoard(newX, newY) || (board[newX][newY] != null && board[newX][newY].color == turn))
             return null;
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = piece;
@@ -102,7 +102,7 @@ public class Position {
 
     public Position enPassant(int oldX, int oldY, int newX, int newY) {
         // checks if on board and if i am trying to take my own piece
-        if (!Helpers.onBoard(newX, newY) || board[newX][newY].color == turn)
+        if (!Helpers.onBoard(newX, newY) || (board[newX][newY] != null && board[newX][newY].color == turn))
             return null;
         Position newPosition = this.clone();
         newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
@@ -149,7 +149,7 @@ public class Position {
     public boolean canBeAttacked(int x, int y) {
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if (board[i][j].color == !turn && board[i][j].canReach(x, y, this))
+                if (board[i][j] != null && board[i][j].color == !turn && board[i][j].canReach(x, y, this))
                     return true;
             }
         }
@@ -159,7 +159,7 @@ public class Position {
     public boolean hasValidMoves() {
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if (board[i][j].color == turn && !board[i][j].generatePossibleMoves(this).isEmpty())
+                if (board[i][j] != null && board[i][j].color == turn && !board[i][j].generatePossibleMoves(this).isEmpty())
                     return true;
             }
         }
@@ -175,19 +175,19 @@ public class Position {
         for (int j = board.length - 1; j >= 0; j--) {
             for (int i = 0; i < board[0].length; i++) {
                 if (board[i][j] == null)
-                    System.out.print("   ");
+                    System.out.print("__ ");
                 else if (board[i][j] instanceof Pawn)
-                    System.out.print("pw ");
+                    System.out.print(board[i][j].color ? "wP " : "bP ");
                 else if (board[i][j] instanceof Bishop)
-                    System.out.print("bs ");
+                    System.out.print(board[i][j].color ? "wB " : "bB ");
                 else if (board[i][j] instanceof Knight)
-                    System.out.print("kn ");
+                    System.out.print(board[i][j].color ? "wN " : "bN ");
                 else if (board[i][j] instanceof Rook)
-                    System.out.print("ro ");
+                    System.out.print(board[i][j].color ? "wR " : "bR ");
                 else if (board[i][j] instanceof Queen)
-                    System.out.print("qu ");
+                    System.out.print(board[i][j].color ? "wQ " : "bQ ");
                 else
-                    System.out.print("kg ");
+                    System.out.print(board[i][j].color ? "wK " : "bK ");
             }
             System.out.println();
         }
@@ -203,7 +203,7 @@ public class Position {
         double sum = 0.0;
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if (board[i][j].color == turn) {
+                if (board[i][j] != null && board[i][j].color == turn) {
                     if (board[i][j] instanceof Pawn)
                         sum += 1.0;
                     else if (board[i][j] instanceof Bishop)
@@ -226,7 +226,7 @@ public class Position {
         ArrayList<Position> successors = new ArrayList<>();
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if (board[i][j].color == true) {
+                if (board[i][j] != null && board[i][j].color == turn) {
                     successors.addAll(board[i][j].generatePossibleMoves(this));
                 }
             }
@@ -234,7 +234,7 @@ public class Position {
         return successors;
     }
 
-    private boolean isTerminal(int depth) {
+    public boolean isTerminal(){
         boolean hasMoves = hasValidMoves();
         boolean isCheck = check();
         if (!hasMoves && isCheck) {
@@ -243,11 +243,16 @@ public class Position {
         } else if (!hasMoves) {
             isDraw = true;
             return true;
-        } else if (depth > MAX_AI_DEPTH) {
-            return true;
         }
-
         return false;
+    }
+
+    public boolean getTurn(){
+        return turn;
+    }
+
+    private boolean isTerminal(int depth) {
+        return isTerminal() || depth > MAX_AI_DEPTH;
     }
 
     private double maxValue(Position position, int depth, double alpha, double beta) {
@@ -260,10 +265,13 @@ public class Position {
         double currentValue;
 
         ArrayList<Position> successors = position.generateSuccessors();
+//        for(Position a : successors) a.print();
+//        System.exit(-1);
         for (Position successor : successors) {
-            currentValue = minValue(successor, depth + 1, alpha, beta);
+            currentValue = minValue(successor, depth, alpha, beta);
             if (currentValue > value) {
                 nextPosition = successor;
+//                nextPosition.print();
                 value = currentValue;
             }
             if (value >= beta)
@@ -274,6 +282,9 @@ public class Position {
         }
 
         this.nextPosition = nextPosition;
+//        System.out.println("**");
+//        nextPosition.print();
+//        System.out.println("**");
         return value;
     }
 
@@ -291,6 +302,7 @@ public class Position {
             currentValue = maxValue(successor, depth + 1, alpha, beta);
             if (currentValue < value) {
                 nextPosition = successor;
+//                nextPosition.print();
                 value = currentValue;
             }
             if (value <= alpha)
@@ -306,6 +318,7 @@ public class Position {
 
     public Position minimaxDecision() {
         maxValue(this, 0, Double.MIN_VALUE, Double.MAX_VALUE);
+        System.out.println("hui");
         return nextPosition;
     }
 }

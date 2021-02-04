@@ -22,7 +22,7 @@ public class Knight extends Piece{
         positions.add(currentBoard.move(x, y, x - 2, y - 1));
         positions.add(currentBoard.move(x, y, x + 2, y + 1));
         positions.add(currentBoard.move(x, y, x + 2, y - 1));
-        ArrayList<Position> filteredPositions = new ArrayList<>(positions.stream().filter(position -> position.valid()).collect(Collectors.toList()));
+        ArrayList<Position> filteredPositions = new ArrayList<>(positions.stream().filter(position -> position != null).collect(Collectors.toList()));
         return filteredPositions;
     }
 

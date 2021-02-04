@@ -111,7 +111,7 @@ public class Pawn extends Piece {
         }
 
         return new ArrayList<>(
-                positions.stream().filter(position -> position.valid()).collect(Collectors.toList()));
+                positions.stream().filter(position -> position != null).collect(Collectors.toList()));
     }
 
     @Override

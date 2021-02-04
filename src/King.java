@@ -102,7 +102,7 @@ public class King extends Piece {
             }
         }
 
-        return new ArrayList<>(positions.stream().filter(position -> position.valid()).collect(Collectors.toList()));
+        return new ArrayList<>(positions.stream().filter(position -> position != null).collect(Collectors.toList()));
     }
 
     @Override

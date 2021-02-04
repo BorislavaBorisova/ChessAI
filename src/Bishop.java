@@ -14,42 +14,58 @@ public class Bishop extends Piece{
     @Override
     public ArrayList<Position> generatePossibleMoves(Position currentBoard) {
         ArrayList<Position> positions = new ArrayList<>();
-        int newX = x++, newY = y--;
-        while(Helpers.onBoard(newX, newY) && ((currentBoard.getPiece(newX, newY) != null && currentBoard.getPiece(newX, newY).color != color) || currentBoard.getPiece(newX, newY) == null)){
-            boolean currentPieceColor = currentBoard.getPiece(newX, newY).color;
+        int newX = x+1, newY = y-1;
+        while(Helpers.onBoard(newX, newY)){
+            if(currentBoard.getPiece(newX, newY) != null){
+                if(currentBoard.getPiece(newX, newY).color != currentBoard.getTurn()){
+                    positions.add(currentBoard.move(x, y, newX, newY));
+                }
+                break;
+            }
             positions.add(currentBoard.move(x, y, newX, newY));
-            if(currentPieceColor != color) break;
             newX++;
             newY--;
         }
 
-        newX = x--; newY = y++;
-        while(Helpers.onBoard(newX, newY) && ((currentBoard.getPiece(newX, newY) != null && currentBoard.getPiece(newX, newY).color != color) || currentBoard.getPiece(newX, newY) == null)){
-            boolean currentPieceColor = currentBoard.getPiece(newX, newY).color;
+        newX = x-1; newY = y+1;
+        while(Helpers.onBoard(newX, newY)){
+            if(currentBoard.getPiece(newX, newY) != null){
+                if(currentBoard.getPiece(newX, newY).color != currentBoard.getTurn()){
+                    positions.add(currentBoard.move(x, y, newX, newY));
+                }
+                break;
+            }
             positions.add(currentBoard.move(x, y, newX, newY));
-            if(currentPieceColor != color) break;
             newX--;
             newY++;
         }
 
-        newX = x++; newY = y++;
-        while(Helpers.onBoard(newX, newY) && ((currentBoard.getPiece(newX, newY) != null && currentBoard.getPiece(newX, newY).color != color) || currentBoard.getPiece(newX, newY) == null)){
-            boolean currentPieceColor = currentBoard.getPiece(newX, newY).color;
+        newX = x+1; newY = y+1;
+        while(Helpers.onBoard(newX, newY)){
+            if(currentBoard.getPiece(newX, newY) != null){
+                if(currentBoard.getPiece(newX, newY).color != currentBoard.getTurn()){
+                    positions.add(currentBoard.move(x, y, newX, newY));
+                }
+                break;
+            }
             positions.add(currentBoard.move(x, y, newX, newY));
-            if(currentPieceColor != color) break;
             newX++;
             newY++;
         }
 
-        newX = x--; newY = y--;
-        while(Helpers.onBoard(newX, newY) && ((currentBoard.getPiece(newX, newY) != null && currentBoard.getPiece(newX, newY).color != color) || currentBoard.getPiece(newX, newY) == null)){
-            boolean currentPieceColor = currentBoard.getPiece(newX, newY).color;
+        newX = x-1; newY = y-1;
+        while(Helpers.onBoard(newX, newY)){
+            if(currentBoard.getPiece(newX, newY) != null){
+                if(currentBoard.getPiece(newX, newY).color != currentBoard.getTurn()){
+                    positions.add(currentBoard.move(x, y, newX, newY));
+                }
+                break;
+            }
             positions.add(currentBoard.move(x, y, newX, newY));
-            if(currentPieceColor != color) break;
             newX--;
             newY--;
         }
-        ArrayList<Position> filteredPositions = new ArrayList<>(positions.stream().filter(position -> position.valid()).collect(Collectors.toList()));
+        ArrayList<Position> filteredPositions = new ArrayList<>(positions.stream().filter(position -> position != null).collect(Collectors.toList()));
         return filteredPositions;
     }
 
