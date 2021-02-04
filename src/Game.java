@@ -44,7 +44,7 @@ public class Game {
             currentPosition.print();
         }
         while(!currentPosition.isTerminal()){
-            currentPosition = currentPosition.minimaxDecision();
+            currentPosition = currentPosition.minimaxDecision(!playersColor);
             currentPosition.print();
             if(currentPosition.isTerminal()) break;
             while(!move()){};

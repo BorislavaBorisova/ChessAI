@@ -5,7 +5,7 @@ import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 public class Position {
     private Piece[][] board;
     private boolean turn;
-    private int move = 0;
+    private int move;
     private int whiteKingX = 4;
     private int whiteKingY = 0;
     private int blackKingX = 4;
@@ -193,9 +193,9 @@ public class Position {
         }
     }
 
-    public double eval(int depth) {
+    public double eval(int depth, boolean AIColor) {
         if (isMate) {
-            return 200.0;
+            return 200.0 * (turn == AIColor ? -1 : 1);
         } else if (isDraw) {
             return 0.0;
         }
@@ -203,19 +203,19 @@ public class Position {
         double sum = 0.0;
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if (board[i][j] != null && board[i][j].color == turn) {
+                if (board[i][j] != null) {
                     if (board[i][j] instanceof Pawn)
-                        sum += 1.0;
+                        sum += 1.0 * (board[i][j].color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Bishop)
-                        sum += 3.0;
+                        sum += 3.0 * (board[i][j].color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Knight)
-                        sum += 3.0;
+                        sum += 3.0 * (board[i][j].color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Rook)
-                        sum += 5.0;
+                        sum += 5.0 * (board[i][j].color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Queen)
-                        sum += 9.0;
+                        sum += 9.0 * (board[i][j].color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof King)
-                        sum += 105.0;
+                        sum += 105.0 * (board[i][j].color == AIColor ? 1 : -1);
                 }
             }
         }
@@ -255,23 +255,20 @@ public class Position {
         return isTerminal() || depth > MAX_AI_DEPTH;
     }
 
-    private double maxValue(Position position, int depth, double alpha, double beta) {
+    private double maxValue(Position position, int depth, double alpha, double beta, boolean AIColor) {
         if (position.isTerminal(depth)) {
-            return position.eval(depth);
+            return position.eval(depth, AIColor);
         }
 
-        double value = Double.MIN_VALUE;
+        double value = -Double.MAX_VALUE;
         Position nextPosition = null;
         double currentValue;
 
         ArrayList<Position> successors = position.generateSuccessors();
-//        for(Position a : successors) a.print();
-//        System.exit(-1);
         for (Position successor : successors) {
-            currentValue = minValue(successor, depth, alpha, beta);
+            currentValue = minValue(successor, depth, alpha, beta, AIColor);
             if (currentValue > value) {
                 nextPosition = successor;
-//                nextPosition.print();
                 value = currentValue;
             }
             if (value >= beta)
@@ -285,9 +282,9 @@ public class Position {
         return value;
     }
 
-    private double minValue(Position position, int depth, double alpha, double beta) {
+    private double minValue(Position position, int depth, double alpha, double beta, boolean AIColor) {
         if (position.isTerminal(depth)) {
-            return position.eval(depth);
+            return position.eval(depth, AIColor);
         }
 
         double value = Double.MAX_VALUE;
@@ -296,7 +293,7 @@ public class Position {
 
         ArrayList<Position> successors = position.generateSuccessors();
         for (Position successor : successors) {
-            currentValue = maxValue(successor, depth + 1, alpha, beta);
+            currentValue = maxValue(successor, depth + 1, alpha, beta, AIColor);
             if (currentValue < value) {
                 nextPosition = successor;
 //                nextPosition.print();
@@ -313,8 +310,8 @@ public class Position {
         return value;
     }
 
-    public Position minimaxDecision() {
-        maxValue(this, 0, Double.MIN_VALUE, Double.MAX_VALUE);
+    public Position minimaxDecision(boolean AIColor) {
+        maxValue(this, 0, Double.MIN_VALUE, Double.MAX_VALUE, AIColor);
         return nextPosition;
     }
 }
