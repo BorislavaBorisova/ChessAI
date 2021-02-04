@@ -8,13 +8,15 @@ public class Move {
     private Piece pieceToBeTaken;
     
     private Rook castlingRook;
+    private Piece promotedPiece;
 
-    public Move(Piece pieceToMove, int newX, int newY, Piece pieceToBeTaken, Rook castlingRook) {
+    public Move(Piece pieceToMove, int newX, int newY, Piece pieceToBeTaken, Rook castlingRook, Piece promotedPiece) {
         this.pieceToMove = pieceToMove;
         pieceToMoveNewX = newX;
         pieceToMoveNewY = newY;
         this.pieceToBeTaken = pieceToBeTaken;
         this.castlingRook = castlingRook;
+        this.promotedPiece = promotedPiece;
     }
     
     public boolean isCapture() {
@@ -43,5 +45,13 @@ public class Move {
     
     public boolean isCastle() {
         return castlingRook != null;
+    }
+    
+    public Piece getPromotedPiece() {
+        return promotedPiece;
+    }
+    
+    public boolean isPromotion() {
+        return promotedPiece != null;
     }
 }
