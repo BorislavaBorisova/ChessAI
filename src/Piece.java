@@ -30,7 +30,7 @@ public abstract class Piece {
 
     public abstract Piece clone();
 
-    public abstract ArrayList<Position> generatePossibleMoves(Position currentBoard);
+    public abstract ArrayList<Move> generatePossibleMoves(Position currentBoard);
 
     public abstract boolean canReach(int goalX, int goalY, Position currentPosition);
 }
