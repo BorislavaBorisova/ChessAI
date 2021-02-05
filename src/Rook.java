@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class Rook extends Piece {
     private boolean hasMoved = false;
@@ -18,21 +17,23 @@ public class Rook extends Piece {
 
     @Override
     public Rook clone() {
-        return new Rook(x, y, color);
+        Rook clone = new Rook(x, y, color);
+        if(hasMoved) clone.move();
+        return clone;
     }
 
     @Override
-    public ArrayList<Position> generatePossibleMoves(Position currentBoard) {
-        ArrayList<Position> positions = new ArrayList<>();
+    public ArrayList<Move> generatePossibleMoves(Position currentBoard) {
+        ArrayList<Move> moves = new ArrayList<>();
         int newX = x+1, newY = y;
         while(Helpers.onBoard(newX, newY)){
             if(currentBoard.getPiece(newX, newY) != null){
                 if(currentBoard.getPiece(newX, newY).color != currentBoard.getTurn()){
-                    positions.add(currentBoard.move(x, y, newX, newY));
+                    moves.add(new Move(this.clone(), newX, newY, currentBoard.getPiece(newX, newY), null, null));
                 }
                 break;
             }
-            positions.add(currentBoard.move(x, y, newX, newY));
+            moves.add(new Move(this.clone(), newX, newY, null, null, null));
             newX++;
         }
 
@@ -40,11 +41,11 @@ public class Rook extends Piece {
         while(Helpers.onBoard(newX, newY)){
             if(currentBoard.getPiece(newX, newY) != null){
                 if(currentBoard.getPiece(newX, newY).color != currentBoard.getTurn()){
-                    positions.add(currentBoard.move(x, y, newX, newY));
+                    moves.add(new Move(this.clone(), newX, newY, currentBoard.getPiece(newX, newY), null, null));
                 }
                 break;
             }
-            positions.add(currentBoard.move(x, y, newX, newY));
+            moves.add(new Move(this.clone(), newX, newY, null, null, null));
             newX--;
         }
 
@@ -52,11 +53,11 @@ public class Rook extends Piece {
         while(Helpers.onBoard(newX, newY)){
             if(currentBoard.getPiece(newX, newY) != null){
                 if(currentBoard.getPiece(newX, newY).color != currentBoard.getTurn()){
-                    positions.add(currentBoard.move(x, y, newX, newY));
+                    moves.add(new Move(this.clone(), newX, newY, currentBoard.getPiece(newX, newY), null, null));
                 }
                 break;
             }
-            positions.add(currentBoard.move(x, y, newX, newY));
+            moves.add(new Move(this.clone(), newX, newY, null, null, null));
             newY++;
         }
 
@@ -64,16 +65,15 @@ public class Rook extends Piece {
         while(Helpers.onBoard(newX, newY)){
             if(currentBoard.getPiece(newX, newY) != null){
                 if(currentBoard.getPiece(newX, newY).color != currentBoard.getTurn()){
-                    positions.add(currentBoard.move(x, y, newX, newY));
+                    moves.add(new Move(this.clone(), newX, newY, currentBoard.getPiece(newX, newY), null, null));
                 }
                 break;
             }
-            positions.add(currentBoard.move(x, y, newX, newY));
+            moves.add(new Move(this.clone(), newX, newY, null, null, null));
             newY--;
         }
-        ArrayList<Position> filteredPositions = new ArrayList<>(
-                positions.stream().filter(position -> position != null).collect(Collectors.toList()));
-        return filteredPositions;
+        
+        return moves;
     }
 
     @Override

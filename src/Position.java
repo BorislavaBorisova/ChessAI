@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Position {
     private Piece[][] board;
@@ -8,7 +9,7 @@ public class Position {
     private int whiteKingY = 0;
     private int blackKingX = 4;
     private int blackKingY = 7;
-    private Position nextPosition;
+    private Move nextMove;
     private boolean isDraw = false;
     private boolean isMate = false;
 
@@ -39,7 +40,8 @@ public class Position {
         Position newPosition = new Position(turn, move);
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if(board[i][j] != null) newPosition.placePiece(board[i][j].clone());
+                if (board[i][j] != null)
+                    newPosition.placePiece(board[i][j].clone());
             }
         }
         return newPosition;
@@ -71,66 +73,58 @@ public class Position {
         }
     }
 
-    public Position move(int oldX, int oldY, int newX, int newY) {
-        // checks if on board and if i am trying to take my own piece
-        if (!Helpers.onBoard(newX, newY) || (board[newX][newY] != null && board[newX][newY].color == turn))
-            return null;
-        Position newPosition = this.clone();
-        newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
-        newPosition.board[newX][newY].setCoordinates(newX, newY);
-        newPosition.board[oldX][oldY] = null;
-        newPosition.turn = !turn;
-        newPosition.move = move + 1;
-        newPosition.updateStatus(newX, newY);
-        return newPosition.valid() ? newPosition : null;
-    }
-
-    public Position promote(int oldX, int oldY, int newX, int newY, Piece piece) {
-        // checks if on board and if i am trying to take my own piece
-        if (!Helpers.onBoard(newX, newY) || (board[newX][newY] != null && board[newX][newY].color == turn))
-            return null;
-        Position newPosition = this.clone();
-        newPosition.board[newX][newY] = piece;
-        newPosition.board[newX][newY].setCoordinates(newX, newY);
-        newPosition.board[oldX][oldY] = null;
-        newPosition.turn = !turn;
-        newPosition.move = move + 1;
-        return newPosition.valid() ? newPosition : null;
-    }
-
-    public Position enPassant(int oldX, int oldY, int newX, int newY) {
-        // checks if on board and if i am trying to take my own piece
-        if (!Helpers.onBoard(newX, newY) || (board[newX][newY] != null && board[newX][newY].color == turn))
-            return null;
-        Position newPosition = this.clone();
-        newPosition.board[newX][newY] = newPosition.board[oldX][oldY];
-        newPosition.board[newX][newY].setCoordinates(newX, newY);
-        newPosition.board[oldX][oldY] = null;
-        newPosition.board[oldX][newY] = null;
-        newPosition.turn = !turn;
-        newPosition.move = move + 1;
-        return newPosition.valid() ? newPosition : null;
-    }
-
-    public Position castle(int kingX, int kingY, int rookX, int rookY) {
-        Position newPosition = this.clone();
-        if (kingX > rookX) {
-            newPosition.board[kingX - 2][kingY] = newPosition.board[kingX][kingY];
-            newPosition.board[kingX - 1][kingY] = newPosition.board[rookX][rookY];
-            newPosition.board[kingX][kingY] = null;
-            newPosition.board[rookX][rookY] = null;
-        } else {
-            newPosition.board[kingX + 2][kingY] = newPosition.board[kingX][kingY];
-            newPosition.board[kingX + 1][kingY] = newPosition.board[rookX][rookY];
-            newPosition.board[kingX][kingY] = null;
-            newPosition.board[rookX][rookY] = null;
+    public Position move(Move move) {
+        if (move.isCapture()) {
+            Piece pieceToBeTaken = move.getPieceToBeTaken();
+            board[pieceToBeTaken.getX()][pieceToBeTaken.getY()] = null;
         }
-        newPosition.turn = !turn;
-        newPosition.move = move + 1;
-        newPosition.updateStatus(kingX, kingY);
-        newPosition.updateStatus(rookX, rookY);
 
-        return newPosition;
+        Piece pieceToMove = move.getPieceToMove();
+        board[move.getX()][move.getY()] = !move.isPromotion()
+                ? board[pieceToMove.getX()][pieceToMove.getY()]
+                : move.getPromotedPiece();
+        board[move.getX()][move.getY()].setCoordinates(move.getX(), move.getY());
+
+        board[pieceToMove.getX()][pieceToMove.getY()] = null;
+
+        if (move.isCastle()) {
+            Rook castlingRook = move.getCastlingRook();
+            board[castlingRook.getX()][castlingRook.getY()].setCoordinates(move.getX(), move.getY());
+            updateStatus(castlingRook.getX(), castlingRook.getY());
+            board[castlingRook.getX() < pieceToMove.getX() ? move.getX() + 1 : move.getX() - 1][move
+                    .getY()] = board[castlingRook.getX()][castlingRook.getY()];
+            board[castlingRook.getX()][castlingRook.getY()] = null;
+        }
+
+        turn = !turn;
+        this.move = this.move + 1;
+        updateStatus(move.getX(), move.getY());
+
+        return this.valid() ? this : null;
+    }
+
+    public Position undoMove(Move move) {
+        board[move.getX()][move.getY()] = null;
+        
+        if (move.isCapture()) {
+            Piece takenPiece = move.getPieceToBeTaken();
+            board[takenPiece.getX()][takenPiece.getY()] = takenPiece.clone();
+        }
+        
+        Piece movedPiece = move.getPieceToMove();
+        board[movedPiece.getX()][movedPiece.getY()] = movedPiece.clone();
+        
+        if(move.isCastle()) {
+            Rook castlingRook = move.getCastlingRook();
+            int rookX = castlingRook.getX() < movedPiece.getX() ? move.getX() + 1 : move.getX() - 1;
+            board[rookX][move.getY()] = null;
+            board[castlingRook.getX()][castlingRook.getY()] = castlingRook.clone();
+        }
+
+        turn = !turn;
+        this.move = this.move - 1;
+
+        return this;
     }
 
     public boolean valid() {
@@ -157,7 +151,8 @@ public class Position {
     public boolean hasValidMoves() {
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if (board[i][j] != null && board[i][j].color == turn && !board[i][j].generatePossibleMoves(this).isEmpty())
+                if (board[i][j] != null && board[i][j].color == turn
+                        && !board[i][j].generatePossibleMoves(this).isEmpty())
                     return true;
             }
         }
@@ -220,8 +215,8 @@ public class Position {
         return sum;
     }
 
-    private ArrayList<Position> generateSuccessors() {
-        ArrayList<Position> successors = new ArrayList<>();
+    private ArrayList<Move> generateSuccessors() {
+        ArrayList<Move> successors = new ArrayList<>();
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
                 if (board[i][j] != null && board[i][j].color == turn) {
@@ -229,10 +224,13 @@ public class Position {
                 }
             }
         }
-        return successors;
+
+        return new ArrayList<>(successors.stream().filter(move -> Helpers.onBoard(move.getX(), move.getY()) &&
+                (board[move.getX()][move.getY()] == null || board[move.getX()][move.getY()].color != turn))
+                .collect(Collectors.toList()));
     }
 
-    public boolean isTerminal(){
+    public boolean isTerminal() {
         boolean hasMoves = hasValidMoves();
         boolean isCheck = check();
         if (!hasMoves && isCheck) {
@@ -245,7 +243,7 @@ public class Position {
         return false;
     }
 
-    public boolean getTurn(){
+    public boolean getTurn() {
         return turn;
     }
 
@@ -259,14 +257,14 @@ public class Position {
         }
 
         double value = -Double.MAX_VALUE;
-        Position nextPosition = null;
+        Move nextMove = null;
         double currentValue;
 
-        ArrayList<Position> successors = position.generateSuccessors();
-        for (Position successor : successors) {
-            currentValue = minValue(successor, depth, alpha, beta, AIColor);
+        ArrayList<Move> successors = position.generateSuccessors();
+        for (Move successor : successors) {
+            currentValue = minValue(position.move(successor), depth, alpha, beta, AIColor);
             if (currentValue > value) {
-                nextPosition = successor;
+                nextMove = successor;
                 value = currentValue;
             }
             if (value >= beta)
@@ -274,9 +272,10 @@ public class Position {
             if (value > alpha) {
                 alpha = value;
             }
+            position.undoMove(successor);
         }
 
-        this.nextPosition = nextPosition;
+        this.nextMove = nextMove;
         return value;
     }
 
@@ -286,15 +285,14 @@ public class Position {
         }
 
         double value = Double.MAX_VALUE;
-        Position nextPosition = null;
+        Move nextMove = null;
         double currentValue;
 
-        ArrayList<Position> successors = position.generateSuccessors();
-        for (Position successor : successors) {
-            currentValue = maxValue(successor, depth + 1, alpha, beta, AIColor);
+        ArrayList<Move> successors = position.generateSuccessors();
+        for (Move successor : successors) {
+            currentValue = maxValue(position.move(successor), depth + 1, alpha, beta, AIColor);
             if (currentValue < value) {
-                nextPosition = successor;
-//                nextPosition.print();
+                nextMove = successor;
                 value = currentValue;
             }
             if (value <= alpha)
@@ -302,14 +300,15 @@ public class Position {
             if (value < beta) {
                 beta = value;
             }
+            position.undoMove(successor);
         }
 
-        this.nextPosition = nextPosition;
+        this.nextMove = nextMove;
         return value;
     }
 
     public Position minimaxDecision(boolean AIColor) {
         maxValue(this, 0, Double.MIN_VALUE, Double.MAX_VALUE, AIColor);
-        return nextPosition;
+        return this.move(nextMove);
     }
 }

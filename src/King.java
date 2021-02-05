@@ -17,7 +17,9 @@ public class King extends Piece {
 
     @Override
     public King clone() {
-        return new King(x, y, color);
+        King clone = new King(x, y, color);
+        if(hasMoved) clone.move();
+        return clone;
     }
 
     @Override
