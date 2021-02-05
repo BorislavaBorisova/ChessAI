@@ -1,9 +1,13 @@
+import java.util.Random;
 import java.util.Scanner;
 
 public class Game {
     private Position currentPosition;
     private Scanner scanner;
     private boolean playersColor;
+    private int[][] table;
+    private int[] hashes;
+    private int whiteTurn, blackTurn;
 
     private void initializePosition(){
         currentPosition = new Position(true, 0);
@@ -29,8 +33,25 @@ public class Game {
         currentPosition.placePiece(new Rook(7, 7, false));
     }
 
+    private void initializeHash(Random random){
+        table = new int[64][18];
+        for(int i = 0; i < 64; i++){
+            for(int j = 0; j < 18; j++){
+                table[i][j] = random.nextInt(Integer.MAX_VALUE);
+            }
+        }
+    }
+
+    private void initializeTurn(Random random){
+        whiteTurn = random.nextInt(Integer.MAX_VALUE);
+        blackTurn = random.nextInt(Integer.MAX_VALUE);
+    }
+
     public Game(){
         initializePosition();
+        Random random = new Random();
+        initializeHash(random);
+        initializeTurn(random);
         scanner = new Scanner(System.in);
     }
 
