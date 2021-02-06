@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class Pawn extends Piece {
     private int firstMove = -1;
@@ -10,116 +9,89 @@ public class Pawn extends Piece {
 
     @Override
     public Pawn clone() {
-        return new Pawn(x, y, color);
+        Pawn clone = new Pawn(x, y, color);
+        clone.setFirstMove(firstMove);
+        return clone;
     }
 
     public void setFirstMove(int move) {
         firstMove = move;
     }
-    
+
     public int getFirstMove() {
         return firstMove;
     }
 
     @Override
-    public ArrayList<Position> generatePossibleMoves(Position currentBoard) {
-        ArrayList<Position> positions = new ArrayList<>();
-        if (color) {
-            if (currentBoard.getPiece(x, y + 1) == null) {
-                if (y == 6) {
-                    positions.add(currentBoard.promote(x, y, x, y + 1, new Queen(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x, y + 1, new Knight(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x, y + 1, new Rook(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x, y + 1, new Bishop(x, y, color)));
-                } else {
-                    positions.add(currentBoard.move(x, y, x, y + 1));
-                }
-            }
-            if (currentBoard.getPiece(x + 1, y + 1) != null && currentBoard.getPiece(x + 1, y + 1).color != color) {
-                if (x == 6) {
-                    positions.add(currentBoard.promote(x, y, x + 1, y + 1, new Queen(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x + 1, y + 1, new Knight(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x + 1, y + 1, new Rook(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x + 1, y + 1, new Bishop(x, y, color)));
-                } else {
-                    positions.add(currentBoard.move(x, y, x + 1, y + 1));
-                }
-            }
-            if (currentBoard.getPiece(x - 1, y + 1) != null && currentBoard.getPiece(x - 1, y + 1).color != color) {
-                if (x == 6) {
-                    positions.add(currentBoard.promote(x, y, x - 1, y + 1, new Queen(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x - 1, y + 1, new Knight(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x - 1, y + 1, new Rook(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x - 1, y + 1, new Bishop(x, y, color)));
-                } else {
-                    positions.add(currentBoard.move(x, y, x - 1, y + 1));
-                }
-            }
-            if (firstMove == -1 && currentBoard.getPiece(x, y + 1) == null && currentBoard.getPiece(x, y + 2) == null) {
-                positions.add(currentBoard.move(x, y, x, y + 2));
-            }
-            if (y == 4 && currentBoard.getPiece(x + 1, y) instanceof Pawn
-                    && ((Pawn) currentBoard.getPiece(x + 1, y)).firstMove + 1 == currentBoard.getMove()) {
-                positions.add(currentBoard.enPassant(x, y, x + 1, y + 1));
-            }
-            if (y == 4 && currentBoard.getPiece(x - 1, y) instanceof Pawn
-                    && ((Pawn) currentBoard.getPiece(x - 1, y)).firstMove + 1 == currentBoard.getMove()) {
-                positions.add(currentBoard.enPassant(x, y, x - 1, y + 1));
-            }
-        } else {
-            if (currentBoard.getPiece(x, y - 1) == null) {
-                if (y == 1) {
-                    positions.add(currentBoard.promote(x, y, x, y - 1, new Queen(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x, y - 1, new Knight(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x, y - 1, new Rook(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x, y - 1, new Bishop(x, y, color)));
-                } else {
-                    positions.add(currentBoard.move(x, y, x, y - 1));
-                }
-            }
-            if (currentBoard.getPiece(x + 1, y - 1) != null && currentBoard.getPiece(x + 1, y - 1).color != color) {
-                if (x == 1) {
-                    positions.add(currentBoard.promote(x, y, x + 1, y - 1, new Queen(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x + 1, y - 1, new Knight(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x + 1, y - 1, new Rook(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x + 1, y - 1, new Bishop(x, y, color)));
-                } else {
-                    positions.add(currentBoard.move(x, y, x + 1, y - 1));
-                }
-            }
-            if (currentBoard.getPiece(x - 1, y - 1) != null && currentBoard.getPiece(x - 1, y - 1).color != color) {
-                if (x == 1) {
-                    positions.add(currentBoard.promote(x, y, x - 1, y - 1, new Queen(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x - 1, y - 1, new Knight(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x - 1, y - 1, new Rook(x, y, color)));
-                    positions.add(currentBoard.promote(x, y, x - 1, y - 1, new Bishop(x, y, color)));
-                } else {
-                    positions.add(currentBoard.move(x, y, x - 1, y - 1));
-                }
-            }
-            if (firstMove == -1 && currentBoard.getPiece(x, y - 1) == null && currentBoard.getPiece(x, y - 2) == null) {
-                positions.add(currentBoard.move(x, y, x, y - 2));
-            }
-            if (y == 3 && currentBoard.getPiece(x + 1, y) instanceof Pawn
-                    && ((Pawn) currentBoard.getPiece(x + 1, y)).firstMove + 1 == currentBoard.getMove()) {
-                positions.add(currentBoard.enPassant(x, y, x + 1, y - 1));
-            }
-            if (y == 3 && currentBoard.getPiece(x - 1, y) instanceof Pawn
-                    && ((Pawn) currentBoard.getPiece(x - 1, y)).firstMove + 1 == currentBoard.getMove()) {
-                positions.add(currentBoard.enPassant(x, y, x - 1, y - 1));
+    public ArrayList<Move> generatePossibleMoves(Position currentBoard) {
+        ArrayList<Move> moves = new ArrayList<>();
+        int direction = color ? 1 : -1;
+        if (currentBoard.getPiece(x, y + direction) == null) {
+            if (y == (color ? 6 : 1)) {
+                moves.add(new Move(this.clone(), x, y + direction, null, null, new Queen(x, y, color)));
+                moves.add(new Move(this.clone(), x, y + direction, null, null, new Knight(x, y, color)));
+                moves.add(new Move(this.clone(), x, y + direction, null, null, new Rook(x, y, color)));
+                moves.add(new Move(this.clone(), x, y + direction, null, null, new Bishop(x, y, color)));
+            } else {
+                moves.add(new Move(this.clone(), x, y + direction, null, null, null));
             }
         }
+        if (currentBoard.getPiece(x + 1, y + direction) != null
+                && currentBoard.getPiece(x + 1, y + direction).color != color) {
+            if (y == (color ? 6 : 1)) {
+                moves.add(new Move(this.clone(), x + 1, y + direction, currentBoard.getPiece(x + 1, y + direction),
+                        null, new Queen(x, y, color)));
+                moves.add(new Move(this.clone(), x + 1, y + direction, currentBoard.getPiece(x + 1, y + direction),
+                        null, new Knight(x, y, color)));
+                moves.add(new Move(this.clone(), x + 1, y + direction, currentBoard.getPiece(x + 1, y + direction),
+                        null, new Rook(x, y, color)));
+                moves.add(new Move(this.clone(), x + 1, y + direction, currentBoard.getPiece(x + 1, y + direction),
+                        null, new Bishop(x, y, color)));
+            } else {
+                moves.add(new Move(this.clone(), x + 1, y + direction, currentBoard.getPiece(x + 1, y + direction),
+                        null, null));
+            }
+        }
+        if (currentBoard.getPiece(x - 1, y + direction) != null
+                && currentBoard.getPiece(x - 1, y + direction).color != color) {
+            if (y == (color ? 6 : 1)) {
+                moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x - 1, y + direction),
+                        null, new Queen(x, y, color)));
+                moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x - 1, y + direction),
+                        null, new Knight(x, y, color)));
+                moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x - 1, y + direction),
+                        null, new Rook(x, y, color)));
+                moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x - 1, y + direction),
+                        null, new Bishop(x, y, color)));
+            } else {
+                moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x + 1, y + direction),
+                        null, null));
+            }
+        }
+        if (firstMove == -1 && currentBoard.getPiece(x, y + direction) == null
+                && currentBoard.getPiece(x, y + direction * 2) == null) {
+            moves.add(new Move(this.clone(), x, y + direction * 2, null, null, null));
+        }
+        if (y == (color ? 4 : 3) && currentBoard.getPiece(x + 1, y) instanceof Pawn
+                && ((Pawn) currentBoard.getPiece(x + 1, y)).firstMove + 1 == currentBoard.getMove()) {
+            moves.add(new Move(this.clone(), x + 1, y + direction, currentBoard.getPiece(x + 1, y), null, null));
+        }
+        if (y == (color ? 4 : 3) && currentBoard.getPiece(x - 1, y) instanceof Pawn
+                && ((Pawn) currentBoard.getPiece(x - 1, y)).firstMove + 1 == currentBoard.getMove()) {
+            moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x - 1, y), null, null));
+        }
 
-        return new ArrayList<>(
-                positions.stream().filter(position -> position != null).collect(Collectors.toList()));
+        return moves;
     }
 
     @Override
     public boolean canReach(int goalX, int goalY, Position currentPosition) {
-        if(color) {
-            if(goalY == y + 1 && (goalX == x + 1 || goalX == x - 1)) return true;
+        if (color) {
+            if (goalY == y + 1 && (goalX == x + 1 || goalX == x - 1))
+                return true;
         } else {
-            if(goalY == y - 1 && (goalX == x + 1 || goalX == x - 1)) return true;
+            if (goalY == y - 1 && (goalX == x + 1 || goalX == x - 1))
+                return true;
         }
         return false;
     }

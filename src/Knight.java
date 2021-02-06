@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class Knight extends Piece{
     public Knight(int x, int y, boolean color){
@@ -12,18 +11,18 @@ public class Knight extends Piece{
     }
 
     @Override
-    public ArrayList<Position> generatePossibleMoves(Position currentBoard) {
-        ArrayList<Position> positions = new ArrayList<>();
-        positions.add(currentBoard.move(x, y, x + 1, y - 2));
-        positions.add(currentBoard.move(x, y, x - 1, y - 2));
-        positions.add(currentBoard.move(x, y, x + 1, y + 2));
-        positions.add(currentBoard.move(x, y, x - 1, y + 2));
-        positions.add(currentBoard.move(x, y, x - 2, y + 1));
-        positions.add(currentBoard.move(x, y, x - 2, y - 1));
-        positions.add(currentBoard.move(x, y, x + 2, y + 1));
-        positions.add(currentBoard.move(x, y, x + 2, y - 1));
-        ArrayList<Position> filteredPositions = new ArrayList<>(positions.stream().filter(position -> position != null).collect(Collectors.toList()));
-        return filteredPositions;
+    public ArrayList<Move> generatePossibleMoves(Position currentBoard) {
+        ArrayList<Move> moves = new ArrayList<>();
+        moves.add(new Move(this.clone(), x + 1, y - 2, currentBoard.getPiece(x + 1, y - 2), null, null));
+        moves.add(new Move(this.clone(), x - 1, y - 2, currentBoard.getPiece(x - 1, y - 2), null, null));
+        moves.add(new Move(this.clone(), x + 1, y + 2, currentBoard.getPiece(x + 1, y + 2), null, null));
+        moves.add(new Move(this.clone(), x - 1, y + 2, currentBoard.getPiece(x - 1, y + 2), null, null));
+        moves.add(new Move(this.clone(), x - 2, y + 1, currentBoard.getPiece(x - 2, y + 1), null, null));
+        moves.add(new Move(this.clone(), x - 2, y - 1, currentBoard.getPiece(x - 2, y - 1), null, null));
+        moves.add(new Move(this.clone(), x + 2, y + 1, currentBoard.getPiece(x + 2, y + 1), null, null));
+        moves.add(new Move(this.clone(), x + 2, y - 1, currentBoard.getPiece(x + 2, y - 1), null, null));
+        
+        return moves;
     }
 
     @Override
