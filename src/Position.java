@@ -14,6 +14,54 @@ public class Position {
     private boolean isMate = false;
 
     public static final int MAX_AI_DEPTH = 2;
+    public static final double[][] KING_POSITIONAL_COEFFICIENTS= {{-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+                                                                    {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+                                                                    {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+                                                                    {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+                                                                    {-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0},
+                                                                    {-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0},
+                                                                    {2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0},
+                                                                    {2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0}};
+    public static final double[][] QUEEN_POSITIONAL_COEFFICIENTS= {{-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0},
+                                                                    {-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0},
+                                                                    {-1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0},
+                                                                    {-0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5},
+                                                                    {0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5},
+                                                                    {-1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0},
+                                                                    {-1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, -1.0},
+                                                                    {-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0}};
+    public static final double[][] ROOK_POSITIONAL_COEFFICIENTS= {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                                                                    {0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0}};
+    public static final double[][] BISHOP_POSITIONAL_COEFFICIENTS= {{-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0},
+                                                                    {-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0},
+                                                                    {-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0},
+                                                                    {-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0},
+                                                                    {-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0},
+                                                                    {-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0},
+                                                                    {-1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, -1.0},
+                                                                    {-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0}};
+    public static final double[][] KNIGHT_POSITIONAL_COEFFICIENTS= {{-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0},
+                                                                    {-4.0, -2.0, 0.0, 0.0, 0.0, 0.0, -2.0, -4.0},
+                                                                    {-3.0, 0.0, 1.0, 1.5, 1.5, 1.0, 0.0, -3.0},
+                                                                    {-3.0, 0.5, 1.5, 2.0, 2.0, 1.5, 0.5, -3.0},
+                                                                    {-3.0, 0.0, 1.5, 2.0, 2.0, 1.5, 0.0, -3.0},
+                                                                    {-3.0, 0.5, 1.0, 1.5, 1.5, 1.0, 0.5, -3.0},
+                                                                    {-4.0, -2.0, 0.0, 0.5, 0.5, 0.0, -2.0, -4.0},
+                                                                    {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0}};
+    public static final double[][] PAWN_POSITIONAL_COEFFICIENTS= {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                                                                    {5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0},
+                                                                    {1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 2.0, 1.0},
+                                                                    {0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5},
+                                                                    {0.0, 0.0, 0.0, 2.0, 2.0, 0.0, 0.0, 0.0},
+                                                                    {0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5},
+                                                                    {0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5},
+                                                                    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
 
     public Position(boolean turn, int move) {
         this.board = new Piece[8][8];
@@ -260,18 +308,21 @@ public class Position {
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
                 if (board[i][j] != null) {
+                    boolean color = board[i][j].color;
+                    int x = color ? i : Math.abs(7 - i);
+                    int y = color ? j : Math.abs(7 - j);
                     if (board[i][j] instanceof Pawn)
-                        sum += 1.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (1.0 + PAWN_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Bishop)
-                        sum += 3.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (3.0 + BISHOP_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Knight)
-                        sum += 3.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (3.0 + KNIGHT_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Rook)
-                        sum += 5.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (5.0 + ROOK_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Queen)
-                        sum += 9.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (9.0 + QUEEN_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof King)
-                        sum += 105.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (105.0 + KING_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                 }
             }
         }
