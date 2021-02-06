@@ -54,4 +54,8 @@ public class Move {
     public boolean isPromotion() {
         return promotedPiece != null;
     }
+
+    public boolean isPawnJump(){
+        return pieceToMove instanceof Pawn && Math.abs(pieceToMove.y - pieceToMoveNewY) == 2;
+    }
 }
