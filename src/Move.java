@@ -11,11 +11,11 @@ public class Move {
     private Piece promotedPiece;
 
     public Move(Piece pieceToMove, int newX, int newY, Piece pieceToBeTaken, Rook castlingRook, Piece promotedPiece) {
-        this.pieceToMove = pieceToMove;
+        this.pieceToMove = pieceToMove.clone();
         pieceToMoveNewX = newX;
         pieceToMoveNewY = newY;
-        this.pieceToBeTaken = pieceToBeTaken;
-        this.castlingRook = castlingRook;
+        this.pieceToBeTaken = pieceToBeTaken != null ? pieceToBeTaken.clone() : null;
+        this.castlingRook = castlingRook != null ? castlingRook.clone() : null;
         this.promotedPiece = promotedPiece;
     }
     
@@ -53,5 +53,11 @@ public class Move {
     
     public boolean isPromotion() {
         return promotedPiece != null;
+    }
+    
+    public void print() {
+        System.out.println(pieceToMove.color ? "White" : "Black" + " to move");
+        System.out.println("Moving " + pieceToMove.getClass() + " from [" + pieceToMove.x + ":" + pieceToMove.y + "] to [" + pieceToMoveNewX + ":" + pieceToMoveNewY + "]");
+        if(isCapture()) System.out.println("Taking " + pieceToBeTaken.getClass() + " from [" + pieceToBeTaken.x + ":" + pieceToBeTaken.y + "]");
     }
 }

@@ -64,7 +64,7 @@ public class Pawn extends Piece {
                 moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x - 1, y + direction),
                         null, new Bishop(x, y, color)));
             } else {
-                moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x + 1, y + direction),
+                moves.add(new Move(this.clone(), x - 1, y + direction, currentBoard.getPiece(x - 1, y + direction),
                         null, null));
             }
         }

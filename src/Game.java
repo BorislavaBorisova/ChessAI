@@ -9,9 +9,9 @@ public class Game {
     private int[] hashes;
     private int whiteTurn, blackTurn;
 
-    private void initializePosition(){
+    private void initializePosition() {
         currentPosition = new Position(true, 0);
-        for(int i = 0; i < 8; i++){
+        for (int i = 0; i < 8; i++) {
             currentPosition.placePiece(new Pawn(i, 1, true));
             currentPosition.placePiece(new Pawn(i, 6, false));
         }
@@ -33,21 +33,21 @@ public class Game {
         currentPosition.placePiece(new Rook(7, 7, false));
     }
 
-    private void initializeHash(Random random){
+    private void initializeHash(Random random) {
         table = new int[64][18];
-        for(int i = 0; i < 64; i++){
-            for(int j = 0; j < 18; j++){
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 18; j++) {
                 table[i][j] = random.nextInt(Integer.MAX_VALUE);
             }
         }
     }
 
-    private void initializeTurn(Random random){
+    private void initializeTurn(Random random) {
         whiteTurn = random.nextInt(Integer.MAX_VALUE);
         blackTurn = random.nextInt(Integer.MAX_VALUE);
     }
 
-    public Game(){
+    public Game() {
         initializePosition();
         Random random = new Random();
         initializeHash(random);
@@ -55,20 +55,25 @@ public class Game {
         scanner = new Scanner(System.in);
     }
 
-    public void play(){
+    public void play() {
         System.out.println("Who will be first player or computer?");
         String first = scanner.nextLine();
         playersColor = first.equals("player");
         currentPosition.print();
-        if(playersColor) {
-            while(!move()){};
+        if (playersColor) {
+            while (!move()) {
+            }
+            ;
             currentPosition.print();
         }
-        while(!currentPosition.isTerminal()){
+        while (!currentPosition.isTerminal()) {
             currentPosition = currentPosition.minimaxDecision(!playersColor);
             currentPosition.print();
-            if(currentPosition.isTerminal()) break;
-            while(!move()){};
+            if (currentPosition.isTerminal())
+                break;
+            while (!move()) {
+            }
+            ;
             currentPosition.print();
         }
     }
@@ -76,44 +81,67 @@ public class Game {
     public boolean move() {
         String line = scanner.nextLine();
         String[] args = line.split(" ");
+        Move move;
         if (args.length == 1) {
             if (args[0].equals("O-O")) {
-                currentPosition = currentPosition.castle(4, playersColor ? 0 : 7, 7, playersColor ? 0 : 7);
+                move = new Move(currentPosition.getPiece(4, playersColor ? 0 : 7).clone(), 2, playersColor ? 0 : 7,
+                        null,
+                        (Rook) currentPosition.getPiece(0, playersColor ? 0 : 7).clone(), null);
             } else if (args[0].equals("o-o")) {
-                currentPosition = currentPosition.castle(4, playersColor ? 0 : 7, 7, playersColor ? 0 : 7);
+                move = new Move(currentPosition.getPiece(4, playersColor ? 0 : 7).clone(), 6, playersColor ? 0 : 7,
+                        null,
+                        (Rook) currentPosition.getPiece(7, playersColor ? 0 : 7).clone(), null);
             } else {
                 System.out.println("Invalid move");
                 return false;
             }
-        } else if (args.length == 2) {
+        } else {
             String coord1 = args[0].toLowerCase(), coord2 = args[1].toLowerCase();
-            currentPosition = currentPosition.move(coord1.charAt(0) - 'a', coord1.charAt(1) - '1', coord2.charAt(0) - 'a', coord2.charAt(1) - '1');
-        } else if (args.length == 3) {
-            String coord1 = args[0].toLowerCase(), coord2 = args[1].toLowerCase(), coord3 = args[2].toLowerCase();
-            switch (coord3) {
+            int x1 = coord1.charAt(0) - 'a', y1 = coord1.charAt(1) - '1',
+                    x2 = coord2.charAt(0) - 'a', y2 = coord2.charAt(1) - '1';
+
+            if (args.length == 2) {
+                move = new Move(currentPosition.getPiece(x1, y1).clone(), x2, y2, currentPosition.getPiece(x2, y2),
+                        null, null);
+            } else if (args.length == 3) {
+                String coord3 = args[2].toLowerCase();
+                switch (coord3) {
                 case "queen":
-                    currentPosition = currentPosition.promote(coord1.charAt(0) - 'a', coord1.charAt(1) - '1', coord2.charAt(0) - 'a', coord2.charAt(1) - '1', new Queen(0, 0, playersColor));
+                    move = new Move(currentPosition.getPiece(x1, y1).clone(), x2, y2, currentPosition.getPiece(x2, y2),
+                            null,
+                            new Queen(0, 0, playersColor));
                     break;
                 case "bishop":
-                    currentPosition = currentPosition.promote(coord1.charAt(0) - 'a', coord1.charAt(1) - '1', coord2.charAt(0) - 'a', coord2.charAt(1) - '1', new Bishop(0, 0, playersColor));
+                    move = new Move(currentPosition.getPiece(x1, y1).clone(), x2, y2, currentPosition.getPiece(x2, y2),
+                            null,
+                            new Bishop(0, 0, playersColor));
                     break;
                 case "rook":
-                    currentPosition = currentPosition.promote(coord1.charAt(0) - 'a', coord1.charAt(1) - '1', coord2.charAt(0) - 'a', coord2.charAt(1) - '1', new Rook(0, 0, playersColor));
+                    move = new Move(currentPosition.getPiece(x1, y1).clone(), x2, y2, currentPosition.getPiece(x2, y2),
+                            null,
+                            new Rook(0, 0, playersColor));
                     break;
                 case "knight":
-                    currentPosition = currentPosition.promote(coord1.charAt(0) - 'a', coord1.charAt(1) - '1', coord2.charAt(0) - 'a', coord2.charAt(1) - '1', new Knight(0, 0, playersColor));
+                    move = new Move(currentPosition.getPiece(x1, y1).clone(), x2, y2, currentPosition.getPiece(x2, y2),
+                            null,
+                            new Knight(0, 0, playersColor));
                     break;
                 default:
                     System.out.println("Invalid move");
                     return false;
+                }
+            } else if (args.length == 4 && args[2].toLowerCase().equals("en")
+                    && args[3].toLowerCase().equals("passant")) {
+                move = new Move(currentPosition.getPiece(x1, y1).clone(), x2, y2, currentPosition.getPiece(x2, y1),
+                        null, null);
+
+            } else {
+                System.out.println("Invalid move");
+                return false;
             }
-        } else if(args.length == 4 && args[2].toLowerCase().equals("en") && args[3].toLowerCase().equals("passant")){
-            String coord1 = args[0].toLowerCase(), coord2 = args[1].toLowerCase();
-            currentPosition = currentPosition.enPassant(coord1.charAt(0) - 'a', coord1.charAt(1) - '1', coord2.charAt(0) - 'a', coord2.charAt(1) - '1');
-        } else {
-            System.out.println("Invalid move");
-            return false;
         }
+
+        currentPosition = currentPosition.move(move);
         return true;
     }
 

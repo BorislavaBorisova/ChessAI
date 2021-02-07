@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class Position {
+public class Position {    
     private Piece[][] board;
     private boolean turn;
     private int move;
@@ -13,7 +13,7 @@ public class Position {
     private boolean isDraw = false;
     private boolean isMate = false;
 
-    public static final int MAX_AI_DEPTH = 2;
+    public static final int MAX_AI_DEPTH = 3;
 
     public static final int WHITE_PAWN = 1;
     public static final int WHITE_ROOK = 2;
@@ -66,21 +66,23 @@ public class Position {
         return newPosition;
     }
 
-    private int findPieceIndex(Piece piece){
+    private int findPieceIndex(Piece piece) {
         int index;
         boolean pieceColor = piece.color;
-        if (piece instanceof Rook){
-            index = pieceColor ? (((Rook)piece).hasMoved() ? WHITE_ROOK_MOVED : WHITE_ROOK) : (((Rook)piece).hasMoved() ? BLACK_ROOK_MOVED : BLACK_ROOK);
-        } else if (piece instanceof Knight){
+        if (piece instanceof Rook) {
+            index = pieceColor ? (((Rook) piece).hasMoved() ? WHITE_ROOK_MOVED : WHITE_ROOK)
+                    : (((Rook) piece).hasMoved() ? BLACK_ROOK_MOVED : BLACK_ROOK);
+        } else if (piece instanceof Knight) {
             index = pieceColor ? WHITE_KNIGHT : BLACK_KNIGHT;
-        } else if (piece instanceof Bishop){
+        } else if (piece instanceof Bishop) {
             index = pieceColor ? WHITE_BISHOP : BLACK_BISHOP;
-        } else if (piece instanceof Queen){
+        } else if (piece instanceof Queen) {
             index = pieceColor ? WHITE_QUEEN : BLACK_QUEEN;
-        } else if (piece instanceof King){
-            index = pieceColor ? (((King)piece).hasMoved() ? WHITE_KING_MOVED : WHITE_KING) : (((King)piece).hasMoved() ? BLACK_KING_MOVED : BLACK_KING);
+        } else if (piece instanceof King) {
+            index = pieceColor ? (((King) piece).hasMoved() ? WHITE_KING_MOVED : WHITE_KING)
+                    : (((King) piece).hasMoved() ? BLACK_KING_MOVED : BLACK_KING);
         } else {
-            if(piece.color != turn && piece.y == (turn ? 4 : 3) && ((Pawn)piece).getFirstMove() == move - 1){
+            if (piece.color != turn && piece.y == (turn ? 4 : 3) && ((Pawn) piece).getFirstMove() == move - 1) {
                 index = pieceColor ? WHITE_CAN_BE_EN_PASSANTED_PAWN : BLACK_CAN_BE_EN_PASSANTED_PAWN;
             } else {
                 index = pieceColor ? WHITE_PAWN : BLACK_PAWN;
@@ -89,11 +91,11 @@ public class Position {
         return index;
     }
 
-    public int hash(int[][] table, int whiteTurn, int blackTurn){
+    public int hash(int[][] table, int whiteTurn, int blackTurn) {
         int hash = 0, k;
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if(board[i][j] != null){
+                if (board[i][j] != null) {
                     k = findPieceIndex(board[i][j]);
                     hash = hash ^ table[j * board[0].length + i][k];
                 }
@@ -130,6 +132,27 @@ public class Position {
     }
 
     public Position move(Move move) {
+//        System.out.println("-----------------");
+//        System.out.println("");
+//        System.out.println("Move");
+//        move.print();
+//        print();
+        
+
+//        if(move.getPieceToMove().getClass() == Pawn.class && move.getPieceToMove().getY() == 1 && move.getPieceToMove().getX() == 0) {
+//            print();
+//            System.out.println(move.getPieceToMove().getX() + " old " + move.getPieceToMove().getY());
+//            System.out.println(move.getX() + " new " + move.getY());
+//            System.out.println(move.getPieceToBeTaken() != null ? move.getPieceToBeTaken().getClass() : null);
+//            
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+
         if (move.isCapture()) {
             Piece pieceToBeTaken = move.getPieceToBeTaken();
             board[pieceToBeTaken.getX()][pieceToBeTaken.getY()] = null;
@@ -139,38 +162,87 @@ public class Position {
         board[move.getX()][move.getY()] = !move.isPromotion()
                 ? board[pieceToMove.getX()][pieceToMove.getY()]
                 : move.getPromotedPiece();
+//        if (board[move.getX()][move.getY()] == null) {
+//            System.out.println(pieceToMove.getClass());
+//            System.out.println(pieceToMove.getX() + " old " + pieceToMove.getY());
+//            System.out.println(move.getX() + " new " + move.getY());
+//            print();
+//        }
+
+//        if(move.getPieceToMove().getClass() == Pawn.class && move.getPieceToMove().getY() == 1 && move.getPieceToMove().getX() == 0) {
+//            print();
+//            
+//            try {
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+
         board[move.getX()][move.getY()].setCoordinates(move.getX(), move.getY());
 
         board[pieceToMove.getX()][pieceToMove.getY()] = null;
 
         if (move.isCastle()) {
             Rook castlingRook = move.getCastlingRook();
-            board[castlingRook.getX()][castlingRook.getY()].setCoordinates(move.getX(), move.getY());
+            board[castlingRook.getX()][castlingRook.getY()].setCoordinates(
+                    castlingRook.getX() < pieceToMove.getX() ? move.getX() + 1 : move.getX() - 1, move.getY());
             updateStatus(castlingRook.getX(), castlingRook.getY());
             board[castlingRook.getX() < pieceToMove.getX() ? move.getX() + 1 : move.getX() - 1][move
                     .getY()] = board[castlingRook.getX()][castlingRook.getY()];
             board[castlingRook.getX()][castlingRook.getY()] = null;
         }
 
+        updateStatus(move.getX(), move.getY());
         turn = !turn;
         this.move = this.move + 1;
-        updateStatus(move.getX(), move.getY());
+        
+//        System.out.println("");
+//        print();
+//        if ((move.getPieceToMove().getClass() == Pawn.class && move.getPieceToMove().getX() == 3
+//                && move.getPieceToMove().color) || (move.getPieceToBeTaken() != null && move.getPieceToBeTaken().color && move.getPieceToBeTaken().getClass() == Pawn.class && move.getPieceToBeTaken().getX() == 3)) {
+//            try {
+//                System.out.println("-----------------");
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+
+//        if(board[3][3] == null) this.pleaseHelp--;
 
         return this.valid() ? this : null;
     }
 
     public Position undoMove(Move move) {
+//        if(this.pleaseHelp < 0) System.exit(-1);
+//        System.out.println("-----------------");
+//
+//        System.out.println("");
+//        System.out.println("Doing undo " + (turn ? "white" : "black"));
+//        move.print();
+//        print();
+//        boolean printlog = false;
+//        if ((move.getPieceToMove().getClass() == Pawn.class && move.getPieceToMove().getX() == 3
+//                && move.getPieceToMove().color) || (move.getPieceToBeTaken() != null && move.getPieceToBeTaken().color && move.getPieceToBeTaken().getClass() == Pawn.class && move.getPieceToBeTaken().getX() == 3)) {
+//            printlog = true;
+//        }
+
         board[move.getX()][move.getY()] = null;
-        
+
         if (move.isCapture()) {
             Piece takenPiece = move.getPieceToBeTaken();
             board[takenPiece.getX()][takenPiece.getY()] = takenPiece.clone();
         }
-        
+
         Piece movedPiece = move.getPieceToMove();
         board[movedPiece.getX()][movedPiece.getY()] = movedPiece.clone();
-        
-        if(move.isCastle()) {
+        if (movedPiece instanceof King)
+            setKingPosition(movedPiece.getX(), movedPiece.getY());
+
+        if (move.isCastle()) {
             Rook castlingRook = move.getCastlingRook();
             int rookX = castlingRook.getX() < movedPiece.getX() ? move.getX() + 1 : move.getX() - 1;
             board[rookX][move.getY()] = null;
@@ -179,7 +251,21 @@ public class Position {
 
         turn = !turn;
         this.move = this.move - 1;
-
+        
+//        System.out.println("");
+//        print();
+//        if (printlog) {
+//            try {
+//                System.out.println("-----------------");
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+        
+//        if(board[3][3] == null) this.pleaseHelp--;
+        
         return this;
     }
 
@@ -187,8 +273,14 @@ public class Position {
         int kingX = turn ? whiteKingX : blackKingX, kingY = turn ? whiteKingY : blackKingY;
         for (int k = 0; k < board[0].length; k++) {
             for (int l = 0; l < board.length; l++) {
-                if (board[k][l] != null && board[k][l].color != turn && board[k][l].canReach(kingX, kingY, this))
+                if (board[k][l] != null && board[k][l].color != turn && board[k][l].canReach(kingX, kingY, this)) {
+//                    System.out.println(kingX + " " + kingY);
+//                    print();
+//                    System.out.println("[" + k + " " + l);
+//
+//                    System.out.println(board[k][l].getClass());
                     return false;
+                }
             }
         }
         return true;
@@ -309,6 +401,7 @@ public class Position {
 
     private double maxValue(Position position, int depth, double alpha, double beta, boolean AIColor) {
         if (position.isTerminal(depth)) {
+//            System.out.println("Terminating in max; Color:" + turn);
             return position.eval(depth, AIColor);
         }
 
@@ -318,25 +411,34 @@ public class Position {
 
         ArrayList<Move> successors = position.generateSuccessors();
         for (Move successor : successors) {
-            currentValue = minValue(position.move(successor), depth, alpha, beta, AIColor);
+            if (position.move(successor) == null) {
+                position.undoMove(successor);
+                continue;
+            }
+            currentValue = minValue(position, depth, alpha, beta, AIColor);
             if (currentValue > value) {
                 nextMove = successor;
                 value = currentValue;
             }
-            if (value >= beta)
+//            System.out.println("Max doing undo");
+            position.undoMove(successor);
+            if (value >= beta) {
+                this.nextMove = nextMove;
                 return value;
+            }
             if (value > alpha) {
                 alpha = value;
             }
-            position.undoMove(successor);
         }
 
+//        System.out.println("Last update " + depth);
         this.nextMove = nextMove;
         return value;
     }
 
     private double minValue(Position position, int depth, double alpha, double beta, boolean AIColor) {
         if (position.isTerminal(depth)) {
+//            System.out.println("Terminating in min; Color:" + turn);
             return position.eval(depth, AIColor);
         }
 
@@ -346,17 +448,25 @@ public class Position {
 
         ArrayList<Move> successors = position.generateSuccessors();
         for (Move successor : successors) {
-            currentValue = maxValue(position.move(successor), depth + 1, alpha, beta, AIColor);
+            if (position.move(successor) == null) {
+                position.undoMove(successor);
+                continue;
+            }
+            currentValue = maxValue(position, depth + 1, alpha, beta, AIColor);
             if (currentValue < value) {
                 nextMove = successor;
                 value = currentValue;
             }
-            if (value <= alpha)
+//            System.out.println("Min doing undo");
+//            successor.print();
+            position.undoMove(successor);
+            if (value <= alpha) {
+                this.nextMove = nextMove;
                 return value;
+            }
             if (value < beta) {
                 beta = value;
             }
-            position.undoMove(successor);
         }
 
         this.nextMove = nextMove;
@@ -365,6 +475,13 @@ public class Position {
 
     public Position minimaxDecision(boolean AIColor) {
         maxValue(this, 0, Double.MIN_VALUE, Double.MAX_VALUE, AIColor);
+//        System.out.println(nextMove.getPieceToMove().getClass());
+//        System.out.println(nextMove.getX() + " new " + nextMove.getY());
+//        System.out.println(nextMove.getPieceToMove().getX() + " old " + nextMove.getPieceToMove().getY());
+//        Position pos = this.move(nextMove);
+//        if (pos == null)
+//            System.out.println("Got it");
+////        return this.move(nextMove);
         return this.move(nextMove);
     }
 }
