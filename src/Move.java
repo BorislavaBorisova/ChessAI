@@ -60,4 +60,8 @@ public class Move {
         System.out.println("Moving " + pieceToMove.getClass() + " from [" + pieceToMove.x + ":" + pieceToMove.y + "] to [" + pieceToMoveNewX + ":" + pieceToMoveNewY + "]");
         if(isCapture()) System.out.println("Taking " + pieceToBeTaken.getClass() + " from [" + pieceToBeTaken.x + ":" + pieceToBeTaken.y + "]");
     }
+
+    public boolean isPawnJump(){
+        return pieceToMove instanceof Pawn && Math.abs(pieceToMove.y - pieceToMoveNewY) == 2;
+    }
 }

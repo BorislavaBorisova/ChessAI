@@ -13,26 +13,55 @@ public class Position {
     private boolean isDraw = false;
     private boolean isMate = false;
 
-    public static final int MAX_AI_DEPTH = 3;
-
-    public static final int WHITE_PAWN = 1;
-    public static final int WHITE_ROOK = 2;
-    public static final int WHITE_KNIGHT = 3;
-    public static final int WHITE_BISHOP = 4;
-    public static final int WHITE_KING = 5;
-    public static final int WHITE_QUEEN = 6;
-    public static final int WHITE_KING_MOVED = 7;
-    public static final int WHITE_ROOK_MOVED = 8;
-    public static final int WHITE_CAN_BE_EN_PASSANTED_PAWN = 9;
-    public static final int BLACK_PAWN = 10;
-    public static final int BLACK_ROOK = 11;
-    public static final int BLACK_KNIGHT = 12;
-    public static final int BLACK_BISHOP = 13;
-    public static final int BLACK_KING = 14;
-    public static final int BLACK_QUEEN = 15;
-    public static final int BLACK_KING_MOVED = 16;
-    public static final int BLACK_ROOK_MOVED = 17;
-    public static final int BLACK_CAN_BE_EN_PASSANTED_PAWN = 18;
+    public static final int MAX_AI_DEPTH = 2;
+    public static final double[][] KING_POSITIONAL_COEFFICIENTS= {{-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+                                                                    {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+                                                                    {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+                                                                    {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+                                                                    {-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0},
+                                                                    {-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0},
+                                                                    {2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0},
+                                                                    {2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0}};
+    public static final double[][] QUEEN_POSITIONAL_COEFFICIENTS= {{-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0},
+                                                                    {-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0},
+                                                                    {-1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0},
+                                                                    {-0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5},
+                                                                    {0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5},
+                                                                    {-1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0},
+                                                                    {-1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, -1.0},
+                                                                    {-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0}};
+    public static final double[][] ROOK_POSITIONAL_COEFFICIENTS= {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                                                                    {0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+                                                                    {0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0}};
+    public static final double[][] BISHOP_POSITIONAL_COEFFICIENTS= {{-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0},
+                                                                    {-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0},
+                                                                    {-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0},
+                                                                    {-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0},
+                                                                    {-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0},
+                                                                    {-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0},
+                                                                    {-1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, -1.0},
+                                                                    {-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0}};
+    public static final double[][] KNIGHT_POSITIONAL_COEFFICIENTS= {{-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0},
+                                                                    {-4.0, -2.0, 0.0, 0.0, 0.0, 0.0, -2.0, -4.0},
+                                                                    {-3.0, 0.0, 1.0, 1.5, 1.5, 1.0, 0.0, -3.0},
+                                                                    {-3.0, 0.5, 1.5, 2.0, 2.0, 1.5, 0.5, -3.0},
+                                                                    {-3.0, 0.0, 1.5, 2.0, 2.0, 1.5, 0.0, -3.0},
+                                                                    {-3.0, 0.5, 1.0, 1.5, 1.5, 1.0, 0.5, -3.0},
+                                                                    {-4.0, -2.0, 0.0, 0.5, 0.5, 0.0, -2.0, -4.0},
+                                                                    {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0}};
+    public static final double[][] PAWN_POSITIONAL_COEFFICIENTS= {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                                                                    {5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0},
+                                                                    {1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 2.0, 1.0},
+                                                                    {0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5},
+                                                                    {0.0, 0.0, 0.0, 2.0, 2.0, 0.0, 0.0, 0.0},
+                                                                    {0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5},
+                                                                    {0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5},
+                                                                    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
 
     public Position(boolean turn, int move) {
         this.board = new Piece[8][8];
@@ -55,6 +84,10 @@ public class Position {
         return move;
     }
 
+    public Piece[][] getBoard(){
+        return board;
+    }
+
     public Position clone() {
         Position newPosition = new Position(turn, move);
         for (int i = 0; i < board[0].length; i++) {
@@ -64,45 +97,6 @@ public class Position {
             }
         }
         return newPosition;
-    }
-
-    private int findPieceIndex(Piece piece) {
-        int index;
-        boolean pieceColor = piece.color;
-        if (piece instanceof Rook) {
-            index = pieceColor ? (((Rook) piece).hasMoved() ? WHITE_ROOK_MOVED : WHITE_ROOK)
-                    : (((Rook) piece).hasMoved() ? BLACK_ROOK_MOVED : BLACK_ROOK);
-        } else if (piece instanceof Knight) {
-            index = pieceColor ? WHITE_KNIGHT : BLACK_KNIGHT;
-        } else if (piece instanceof Bishop) {
-            index = pieceColor ? WHITE_BISHOP : BLACK_BISHOP;
-        } else if (piece instanceof Queen) {
-            index = pieceColor ? WHITE_QUEEN : BLACK_QUEEN;
-        } else if (piece instanceof King) {
-            index = pieceColor ? (((King) piece).hasMoved() ? WHITE_KING_MOVED : WHITE_KING)
-                    : (((King) piece).hasMoved() ? BLACK_KING_MOVED : BLACK_KING);
-        } else {
-            if (piece.color != turn && piece.y == (turn ? 4 : 3) && ((Pawn) piece).getFirstMove() == move - 1) {
-                index = pieceColor ? WHITE_CAN_BE_EN_PASSANTED_PAWN : BLACK_CAN_BE_EN_PASSANTED_PAWN;
-            } else {
-                index = pieceColor ? WHITE_PAWN : BLACK_PAWN;
-            }
-        }
-        return index;
-    }
-
-    public int hash(int[][] table, int whiteTurn, int blackTurn) {
-        int hash = 0, k;
-        for (int i = 0; i < board[0].length; i++) {
-            for (int j = 0; j < board.length; j++) {
-                if (board[i][j] != null) {
-                    k = findPieceIndex(board[i][j]);
-                    hash = hash ^ table[j * board[0].length + i][k];
-                }
-            }
-        }
-        hash = hash ^ (turn ? whiteTurn : blackTurn);
-        return hash;
     }
 
     private void updateStatus(int x, int y) {
@@ -271,28 +265,81 @@ public class Position {
 
     public boolean valid() {
         int kingX = turn ? whiteKingX : blackKingX, kingY = turn ? whiteKingY : blackKingY;
-        for (int k = 0; k < board[0].length; k++) {
-            for (int l = 0; l < board.length; l++) {
-                if (board[k][l] != null && board[k][l].color != turn && board[k][l].canReach(kingX, kingY, this)) {
-//                    System.out.println(kingX + " " + kingY);
-//                    print();
-//                    System.out.println("[" + k + " " + l);
-//
-//                    System.out.println(board[k][l].getClass());
-                    return false;
-                }
-            }
-        }
-        return true;
+        return canBeAttacked(kingX, kingX);
+    }
+
+    private boolean isOpponentKnight(int x, int y){
+        return Helpers.onBoard(x, y) && board[x][y] != null && board[x][y] instanceof Knight && board[x][y].color != turn;
+    }
+
+    private boolean isOpponentPawn(int x, int y){
+        return Helpers.onBoard(x, y) && board[x][y] != null && board[x][y] instanceof Pawn && board[x][y].color != turn;
     }
 
     public boolean canBeAttacked(int x, int y) {
-        for (int i = 0; i < board[0].length; i++) {
-            for (int j = 0; j < board.length; j++) {
-                if (board[i][j] != null && board[i][j].color == !turn && board[i][j].canReach(x, y, this))
-                    return true;
-            }
-        }
+//        for (int i = 0; i < board[0].length; i++) {
+//            for (int j = 0; j < board.length; j++) {
+//                if (board[i][j] != null && board[i][j].color == !turn && board[i][j].canReach(x, y, this))
+//                    return true;
+//            }
+//        }
+
+        int newX = x, newY = y;
+        do{
+            newX++; newY++;
+            if(board[newX][newY] != null && board[newX][newY].color != turn && (board[newX][newY] instanceof Queen || board[newX][newY] instanceof Bishop)) return true;
+        } while(Helpers.onBoard(newX, newY) && board[newX][newY] != null);
+
+        newX = x; newY = y;
+        do{
+            newX++; newY--;
+            if(board[newX][newY] != null && board[newX][newY].color != turn && (board[newX][newY] instanceof Queen || board[newX][newY] instanceof Bishop)) return true;
+        } while(Helpers.onBoard(newX, newY) && board[newX][newY] != null);
+
+        newX = x; newY = y;
+        do{
+            newX--; newY++;
+            if(board[newX][newY] != null && board[newX][newY].color != turn && (board[newX][newY] instanceof Queen || board[newX][newY] instanceof Bishop)) return true;
+        } while(Helpers.onBoard(newX, newY) && board[newX][newY] != null);
+
+        newX = x; newY = y;
+        do{
+            newX--; newY--;
+            if(board[newX][newY] != null && board[newX][newY].color != turn && (board[newX][newY] instanceof Queen || board[newX][newY] instanceof Bishop)) return true;
+        } while(Helpers.onBoard(newX, newY) && board[newX][newY] != null);
+
+        newX = x; newY = y;
+        do{
+            newX++;
+            if(board[newX][newY] != null && board[newX][newY].color != turn && (board[newX][newY] instanceof Queen || board[newX][newY] instanceof Rook)) return true;
+        } while(Helpers.onBoard(newX, newY) && board[newX][newY] != null);
+
+        newX = x; newY = y;
+        do{
+            newX--;
+            if(board[newX][newY] != null && board[newX][newY].color != turn && (board[newX][newY] instanceof Queen || board[newX][newY] instanceof Rook)) return true;
+        } while(Helpers.onBoard(newX, newY) && board[newX][newY] != null);
+
+        newX = x; newY = y;
+        do{
+            newY++;
+            if(board[newX][newY] != null && board[newX][newY].color != turn && (board[newX][newY] instanceof Queen || board[newX][newY] instanceof Rook)) return true;
+        } while(Helpers.onBoard(newX, newY) && board[newX][newY] != null);
+
+        newX = x; newY = y;
+        do{
+            newY++;
+            if(board[newX][newY] != null && board[newX][newY].color != turn && (board[newX][newY] instanceof Queen || board[newX][newY] instanceof Rook)) return true;
+        } while(Helpers.onBoard(newX, newY) && board[newX][newY] != null);
+
+        if(isOpponentKnight(x + 2, y + 1) || isOpponentKnight(x + 2, y - 1) ||
+            isOpponentKnight(x - 2, y + 1) || isOpponentKnight(x - 2, y - 1) ||
+            isOpponentKnight(x + 1, y + 2) || isOpponentKnight(x - 1, y + 2) ||
+            isOpponentKnight(x + 1, y - 2) || isOpponentKnight(x - 1, y - 2)) return true;
+
+        if((turn && (isOpponentPawn(x + 1, y + 1) || isOpponentPawn(x - 1, y + 1))) ||
+            (!turn && (isOpponentPawn(x + 1, y - 1) || isOpponentPawn(x - 1, y - 1)))) return true;
+
         return false;
     }
 
@@ -345,18 +392,21 @@ public class Position {
         for (int i = 0; i < board[0].length; i++) {
             for (int j = 0; j < board.length; j++) {
                 if (board[i][j] != null) {
+                    boolean color = board[i][j].color;
+                    int x = color ? i : Math.abs(7 - i);
+                    int y = color ? j : Math.abs(7 - j);
                     if (board[i][j] instanceof Pawn)
-                        sum += 1.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (1.0 + PAWN_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Bishop)
-                        sum += 3.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (3.0 + BISHOP_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Knight)
-                        sum += 3.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (3.0 + KNIGHT_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Rook)
-                        sum += 5.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (5.0 + ROOK_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof Queen)
-                        sum += 9.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (9.0 + QUEEN_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                     else if (board[i][j] instanceof King)
-                        sum += 105.0 * (board[i][j].color == AIColor ? 1 : -1);
+                        sum += (105.0 + KING_POSITIONAL_COEFFICIENTS[x][y]) * (color == AIColor ? 1 : -1);
                 }
             }
         }
